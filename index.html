@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Teclado secreto</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Grotesk:wght@400;600&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eef0f4; --panel:#ffffff; --key:#d9dde5; --key-text:#23262d; --text:#1b1d22; --muted:#5d6370;
+  --bubble:#1d56a6; --bubble-text:#ffffff; --accent:#1d56a6; --line:#c9cedb; --warn:#a15c00;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181d; --panel:#1f2228; --key:#343841; --key-text:#e8eaef; --text:#e8eaef; --muted:#9aa1b0;
+    --bubble:#1e5aa8; --bubble-text:#ffffff; --accent:#6fa8f5; --line:#343841; --warn:#e5b25a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16181d; --panel:#1f2228; --key:#343841; --key-text:#e8eaef; --text:#e8eaef; --muted:#9aa1b0;
+  --bubble:#1e5aa8; --bubble-text:#ffffff; --accent:#6fa8f5; --line:#343841; --warn:#e5b25a;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Space Grotesk",system-ui,sans-serif;line-height:1.45}
+main{max-width:640px;margin:0 auto;padding:20px 14px 40px}
+h1{font-family:"VT323",monospace;font-weight:400;font-size:2.4rem;margin:0 0 2px;letter-spacing:.5px}
+.sub{color:var(--muted);margin:0 0 18px;font-size:.95rem}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{flex:1;padding:11px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 5px}
+textarea{width:100%;min-height:110px;resize:vertical;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-family:"VT323",monospace;font-size:1.4rem;line-height:1.25}
+.out{background:var(--bubble);color:var(--bubble-text);border-color:transparent}
+.row{display:flex;gap:8px;margin-top:8px}
+.row button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;cursor:pointer}
+.row button.main{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+.opt{display:flex;align-items:flex-start;gap:8px;margin:2px 0 0;font-size:.9rem;color:var(--text)}
+.opt input{margin-top:3px;width:18px;height:18px;accent-color:var(--accent)}
+.opt small{display:block;color:var(--muted)}
+.warn{color:var(--warn);font-size:.85rem;margin:8px 0 0;min-height:1.2em}
+h2{font-size:1rem;margin:26px 0 4px}
+.hint{color:var(--muted);font-size:.85rem;margin:0 0 10px}
+.kb{display:flex;flex-direction:column;gap:6px;align-items:center}
+.kr{display:flex;gap:4px;width:100%;justify-content:center}
+.k{flex:1;max-width:58px;background:var(--key);border-radius:7px;padding:3px 2px 5px;text-align:center}
+.k b{display:block;font-family:"VT323",monospace;font-weight:400;font-size:1.5rem;line-height:1;color:var(--key-text)}
+.k input{width:100%;border:0;border-radius:4px;background:var(--panel);color:var(--accent);font-family:"VT323",monospace;font-size:1.3rem;text-align:center;padding:0;height:24px;margin-top:3px}
+.reset{margin-top:12px;background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;cursor:pointer;padding:6px 0}
+</style>
+</head>
+<body>
+<main>
+  <h1>Teclado secreto</h1>
+  <p class="sub">Troca cada letra pelo símbolo que aparece ao segurar a tecla no Gboard. Letras com acento ficam normais.</p>
+
+  <div class="tabs">
+    <button id="tEnc" aria-pressed="true">Codificar</button>
+    <button id="tDec" aria-pressed="false">Decodificar</button>
+  </div>
+
+  <label class="opt" for="esc"><input type="checkbox" id="esc" checked><span>Proteger pontuação de verdade<small>Um ? ! " ( ) etc. normal vira ~? ~! ~" ... e volta certo ao decodificar. Desmarque para ler mensagens antigas.</small></span></label>
+
+  <label for="inp" id="lblIn">Texto normal</label>
+  <textarea id="inp" placeholder="Escreva aqui: eu não sei"></textarea>
+
+  <div class="row">
+    <button id="swap">Inverter ⇅</button>
+    <button id="clear">Limpar</button>
+  </div>
+
+  <label for="outp" id="lblOut">Texto codificado</label>
+  <textarea id="outp" class="out" readonly></textarea>
+  <div class="row"><button id="copy" class="main">Copiar resultado</button></div>
+  <p class="warn" id="warn" role="status"></p>
+
+  <h2>Mapa das teclas</h2>
+  <p class="hint">Se algum símbolo estiver diferente no seu teclado, toque no campo e troque. Fica salvo neste aparelho.</p>
+  <div class="kb" id="kb"></div>
+  <button class="reset" id="reset">Restaurar padrão</button>
+</main>
+
+<script>
+var DEF = {q:'%',w:'\\',e:'|',r:'=',t:'[',y:']',u:'<',i:'>',o:'{',p:'}',
+  a:'@',s:'#',d:'$',f:'_',g:'&',h:'-',j:'+',k:'(',l:')',
+  z:'*',x:'"',c:"'",v:':',b:';',n:'!',m:'?'};
+var ROWS = ['qwertyuiop','asdfghjkl','zxcvbnm'];
+var map = Object.assign({}, DEF);
+var mode = 'enc';
+
+try {
+  var saved = localStorage.getItem('teclado-map');
+  if (saved) { var p = JSON.parse(saved); if (p && typeof p === 'object') map = Object.assign({}, DEF, p); }
+} catch (e) {}
+
+var $ = function (id) { return document.getElementById(id); };
+var inp = $('inp'), outp = $('outp'), warn = $('warn');
+
+function save() { try { localStorage.setItem('teclado-map', JSON.stringify(map)); } catch (e) {} }
+
+function reverse() {
+  var r = {}, dup = [];
+  Object.keys(map).forEach(function (l) {
+    var s = map[l];
+    if (!s) return;
+    if (r[s]) dup.push(s); else r[s] = l;
+  });
+  return { r: r, dup: dup };
+}
+
+function run() {
+  var txt = inp.value, res = '', rv = reverse();
+  var chars = Array.from(txt);
+  var escOn = $('esc').checked, ESC = '~';
+  if (mode === 'enc') {
+    chars.forEach(function (c) {
+      var l = c.toLowerCase();
+      if (/^[a-z]$/.test(l) && map[l]) res += map[l];
+      else if (escOn && (c === ESC || rv.r[c])) res += ESC + c;
+      else res += c;
+    });
+  } else {
+    for (var i = 0; i < chars.length; i++) {
+      var c = chars[i];
+      if (escOn && c === ESC && i + 1 < chars.length) { res += chars[i + 1]; i++; }
+      else res += rv.r[c] || c;
+    }
+  }
+  outp.value = res;
+  var msg = '';
+  if (rv.dup.length) msg = 'Símbolo repetido no mapa: ' + rv.dup.join(' ') + '. A decodificação pode errar.';
+  else if (mode === 'dec' && !escOn) msg = 'Pontuação normal (? ! ( ) etc.) também vira letra ao decodificar.';
+  warn.textContent = msg;
+}
+
+function setMode(m) {
+  mode = m;
+  $('tEnc').setAttribute('aria-pressed', m === 'enc');
+  $('tDec').setAttribute('aria-pressed', m === 'dec');
+  $('lblIn').textContent = m === 'enc' ? 'Texto normal' : 'Texto codificado';
+  $('lblOut').textContent = m === 'enc' ? 'Texto codificado' : 'Texto decodificado';
+  inp.placeholder = m === 'enc' ? 'Escreva aqui: eu não sei' : 'Cole aqui: <!ã{ ...';
+  run();
+}
+
+$('tEnc').onclick = function () { setMode('enc'); };
+$('tDec').onclick = function () { setMode('dec'); };
+inp.addEventListener('input', run);
+$('esc').addEventListener('change', run);
+$('clear').onclick = function () { inp.value = ''; run(); inp.focus(); };
+$('swap').onclick = function () {
+  var v = outp.value;
+  setMode(mode === 'enc' ? 'dec' : 'enc');
+  inp.value = v; run();
+};
+$('copy').onclick = function () {
+  var b = $('copy'), v = outp.value;
+  function ok() { b.textContent = 'Copiado!'; setTimeout(function () { b.textContent = 'Copiar resultado'; }, 1400); }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(v).then(ok, fallback);
+  } else fallback();
+  function fallback() { outp.select(); try { document.execCommand('copy'); ok(); } catch (e) {} }
+};
+
+function drawKeys() {
+  var kb = $('kb'); kb.innerHTML = '';
+  ROWS.forEach(function (row) {
+    var d = document.createElement('div'); d.className = 'kr';
+    row.split('').forEach(function (l) {
+      var k = document.createElement('div'); k.className = 'k';
+      var b = document.createElement('b'); b.textContent = l.toUpperCase();
+      var i = document.createElement('input');
+      i.value = map[l] || ''; i.maxLength = 2; i.setAttribute('aria-label', 'Símbolo da tecla ' + l.toUpperCase());
+      i.addEventListener('focus', function () { i.select(); });
+      i.addEventListener('input', function () {
+        var chars = Array.from(i.value);
+        map[l] = chars.length ? chars[chars.length - 1] : '';
+        i.value = map[l]; save(); run();
+      });
+      k.appendChild(b); k.appendChild(i); d.appendChild(k);
+    });
+    kb.appendChild(d);
+  });
+}
+$('reset').onclick = function () { map = Object.assign({}, DEF); save(); drawKeys(); run(); };
+
+drawKeys();
+setMode('enc');
+</script>
+</body>
+</html>
