@@ -1592,6 +1592,7 @@ function atb(t) {
   return t.replace(/[a-z]/gi, function (c) { var b = c <= 'Z' ? 65 : 97; return String.fromCharCode(b + 25 - (c.charCodeAt(0) - b)); });
 }
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
@@ -1616,6 +1617,344 @@ h1{font-family:"VT323",monospace;font-weight:400;font-size:2.4rem;margin:0 0 2px
 button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 5px}
 textarea{width:100%;min-height:100px;resize:vertical;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-family:"VT323",monospace;font-size:1.4rem;line-height:1.25}
+.out{background:var(--bubble);color:#fff;border-color:transparent}
+.row{display:flex;gap:8px;margin-top:8px}
+.row button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;cursor:pointer}
+.row button.main{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+.opt{display:flex;align-items:flex-start;gap:8px;margin:8px 0 0;font-size:.9rem;color:var(--text)}
+.opt input[type=checkbox]{margin-top:3px;width:18px;height:18px;accent-color:var(--accent)}
+.opt small{display:block;color:var(--muted)}
+.num{width:80px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit}
+.warn{color:var(--warn);font-size:.85rem;margin:8px 0 0;min-height:1.2em}
+h2{font-size:1rem;margin:26px 0 4px}
+.hint{color:var(--muted);font-size:.85rem;margin:0 0 10px}
+.kb{display:flex;flex-direction:column;gap:6px;align-items:center}
+.kr{display:flex;gap:4px;width:100%;justify-content:center}
+.k{flex:1;max-width:58px;background:var(--key);border-radius:7px;padding:3px 2px 5px;text-align:center}
+.k b{display:block;font-family:"VT323",monospace;font-weight:400;font-size:1.5rem;line-height:1;color:var(--key-text)}
+.k i{display:block;font-style:normal;line-height:24px;width:100%;border-radius:4px;background:var(--panel);color:var(--accent);font-family:"VT323",monospace;font-size:1.3rem;margin-top:3px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px}
+.g{background:var(--key);border-radius:7px;padding:4px 2px 6px;text-align:center;min-width:0}
+.g b{display:block;font-family:"VT323",monospace;font-weight:400;font-size:1.4rem;line-height:1;color:var(--key-text)}
+.g i{display:block;font-style:normal;margin-top:3px;border-radius:4px;background:var(--panel);color:var(--accent);font-family:"VT323",monospace;font-size:1.1rem;line-height:22px;overflow:hidden}
+.cats button{font-size:.9rem}
+.chips{flex-wrap:wrap}
+.chips button{flex:none;padding:7px 12px;font-size:.85rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px}
+.card h3{font-size:.9rem;margin:0 0 4px;display:flex;justify-content:space-between;gap:8px}
+.card small{color:var(--muted);font-weight:400}
+.card pre{margin:0;white-space:pre-wrap;word-break:break-word;font-family:"VT323",monospace;font-size:1.25rem;line-height:1.2;max-height:9em;overflow:auto}
+.card .row button{padding:7px;font-size:.85rem}
+.qr{display:block;margin:12px auto 0;width:min(100%,320px);height:auto;image-rendering:pixelated;border-radius:8px;background:#fff}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <h1>Teclado secreto</h1>
+  <p class="sub">Codifique e decodifique mensagens. O código principal usa os símbolos de segurar tecla do Gboard.</p>
+
+  <div class="tabs cats" id="cats"></div>
+  <div class="tabs codes" id="codes"></div>
+
+  <div id="vConv">
+  <div class="tabs">
+    <button id="tEnc" aria-pressed="true">Codificar</button>
+    <button id="tDec" aria-pressed="false">Decodificar</button>
+  </div>
+
+  <div id="pTec">
+    <label class="opt" for="esc"><input type="checkbox" id="esc" checked><span>Proteger pontuação de verdade<small>Um ? ! " ( ) etc. normal vira ~? ~! ~" ... e volta certo ao decodificar.</small></span></label>
+    <label class="opt" for="caps"><input type="checkbox" id="caps" checked><span>Marcar maiúsculas<small>Letra maiúscula ganha um ^ na frente (A vira ^@) e volta maiúscula ao decodificar.</small></span></label>
+  </div>
+  <div id="pCes" hidden>
+    <label class="opt" for="shift" style="align-items:center">Deslocamento <input class="num" type="number" id="shift" value="3" min="1" max="25"></label>
+  </div>
+
+  <div id="pVig" hidden>
+    <label class="opt" for="vkey" style="align-items:center">Palavra-chave <input class="num" style="width:170px" type="text" id="vkey" value="chave" autocomplete="off" autocapitalize="off"></label>
+  </div>
+
+  <label for="inp" id="lblIn">Texto normal</label>
+  <textarea id="inp"></textarea>
+  <div class="row">
+    <button id="paste">Colar</button>
+    <button id="swap">Inverter ⇅</button>
+    <button id="clear">Limpar</button>
+  </div>
+
+  <label for="outp" id="lblOut">Texto codificado</label>
+  <textarea id="outp" class="out" readonly></textarea>
+  <div class="row">
+    <button id="copy" class="main">Copiar</button>
+    <button id="share" class="main">Compartilhar</button>
+  </div>
+  <p class="warn" id="warn" role="status"></p>
+
+  <div id="mapa">
+    <h2>Mapa das teclas</h2>
+    <p class="hint">Cada letra vira o símbolo que aparece ao segurar a tecla no Gboard.</p>
+    <div class="kb" id="kb"></div>
+  </div>
+  <div id="refOther" hidden>
+    <h2 id="refT"></h2>
+    <p class="hint" id="refH"></p>
+    <div class="grid" id="refG"></div>
+  </div>
+  </div>
+
+  <div id="vDet" hidden>
+    <p class="hint">Cole um texto para ver os formatos prováveis. Toda identificação é uma hipótese: formatos ambíguos podem ter mais de uma leitura.</p>
+    <label for="detIn">Texto para analisar</label>
+    <textarea id="detIn"></textarea>
+    <div class="row"><button id="detPaste">Colar</button><button id="detClear">Limpar</button></div>
+    <div id="detOut"></div>
+    <label>Testar outra interpretação</label>
+    <div class="tabs chips" id="detTry"></div>
+  </div>
+
+  <div id="vLab" hidden>
+    <p class="hint">Escreva uma mensagem e veja o resultado em vários métodos ao mesmo tempo. Ligue ou desligue cada um.</p>
+    <label for="labIn">Mensagem</label>
+    <textarea id="labIn"></textarea>
+    <div class="row" style="align-items:center">
+      <label class="opt" style="margin:0">César <input class="num" type="number" id="labShift" value="3" min="1" max="25"></label>
+      <label class="opt" style="margin:0">Vigenère <input class="num" style="width:110px" type="text" id="labKey" value="chave" autocomplete="off"></label>
+    </div>
+    <label>Métodos</label>
+    <div class="tabs chips" id="labTog"></div>
+    <div id="labOut"></div>
+  </div>
+
+  <div id="vQr" hidden>
+    <label for="qrIn">Texto ou link</label>
+    <textarea id="qrIn" placeholder="https://..."></textarea>
+    <canvas id="qrCv" class="qr" hidden></canvas>
+    <p class="warn" id="qrW" role="status"></p>
+    <div class="row"><button id="qrDl" class="main">Baixar PNG</button><button id="qrCp">Copiar conteúdo</button></div>
+  </div>
+
+  <div id="vHis" hidden>
+    <p class="hint">Fica só neste aparelho (localStorage), no máximo 50 conversões. Nada é enviado para servidores.</p>
+    <label class="opt" for="hisOn"><input type="checkbox" id="hisOn" checked><span>Salvar conversões automaticamente</span></label>
+    <div class="row"><button id="hisClr">Limpar tudo</button></div>
+    <div id="hisList"></div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+var map = {q:'%',w:'\\',e:'|',r:'=',t:'[',y:']',u:'<',i:'>',o:'{',p:'}',
+  a:'@',s:'#',d:'$',f:'_',g:'&',h:'-',j:'+',k:'(',l:')',
+  z:'*',x:'"',c:"'",v:':',b:';',n:'!',m:'?'};
+var ROWS = ['qwertyuiop','asdfghjkl','zxcvbnm'];
+var MORSE = {A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',
+ '0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.',
+ '.':'.-.-.-',',':'--..--','?':'..--..','!':'-.-.--',"'":'.----.','/':'-..-.','(':'-.--.',')':'-.--.-',':':'---...',';':'-.-.-.','=':'-...-','+':'.-.-.','-':'-....-','@':'.--.-.'};
+var RMORSE = {}; Object.keys(MORSE).forEach(function (k) { RMORSE[MORSE[k]] = k; });
+
+var code = 'tec', mode = 'enc';
+var NM = {tec:'Teclado',ces:'César',vig:'Vigenère',rot:'ROT13',atb:'Atbash',mor:'Morse',bin:'Binário',b64:'Base64',hex:'Hexadecimal',det:'Detector',lab:'Laboratório',qr:'QR Code',his:'Histórico'};
+var TOOLS = {cif:['tec','ces','vig','rot','atb'], cod:['mor','bin','b64','hex'], ana:['det','lab'], fer:['qr','his']};
+var GN = {cif:'Cifras', cod:'Codificações', ana:'Análise', fer:'Ferramentas'};
+var VIEW = {det:'vDet', lab:'vLab', qr:'vQr', his:'vHis'};
+var CONV = {}, GROUP = {};
+Object.keys(TOOLS).forEach(function (g) { TOOLS[g].forEach(function (id) { GROUP[id] = g; if (g === 'cif' || g === 'cod') CONV[id] = true; }); });
+var $ = function (id) { return document.getElementById(id); };
+var inp = $('inp'), outp = $('outp'), warn = $('warn');
+
+var HELP = {
+  tec: function () { return ''; },
+  ces: function () { return 'Só troca letras A–Z. Acentos e números ficam iguais. O deslocamento precisa ser o mesmo nos dois lados.'; },
+  mor: function () { return mode === 'enc' ? 'Acentos viram letra sem acento. Caracteres que não existem no Morse são ignorados.' : 'Separe letras com espaço e palavras com /. O resultado sai em minúsculas.'; },
+  vig: function () { return 'Só troca letras A–Z (acentos e números ficam iguais). Use a mesma palavra-chave nos dois lados.'; },
+  rot: function () { return 'ROT13 é simétrico: aplicar duas vezes volta ao original. Só troca letras A–Z.'; },
+  atb: function () { return 'Atbash também é simétrico (A↔Z, B↔Y...). Só troca letras A–Z.'; },
+  b64: function () { return 'Texto em UTF-8: acentos e emojis funcionam. Aceita também Base64 URL-safe.'; },
+  hex: function () { return mode === 'enc' ? 'Cada byte UTF-8 vira dois dígitos hexadecimais.' : 'Aceita pares separados por espaço, vírgula ou 0x.'; },
+  bin: function () { return ''; }
+};
+
+function reverse() {
+  var r = {}, dup = [];
+  Object.keys(map).forEach(function (l) { var s = map[l]; if (r[s]) dup.push(s); else r[s] = l; });
+  return { r: r, dup: dup };
+}
+
+function tec(chars, rv) {
+  var escOn = $('esc').checked, capsOn = $('caps').checked, ESC = '~', CAP = '^', res = '', i, c;
+  if (mode === 'enc') {
+    chars.forEach(function (c) {
+      var l = c.toLowerCase();
+      if (/^[a-z]$/.test(l)) res += ((capsOn && c !== l) ? CAP : '') + map[l];
+      else if (escOn && (c === ESC || c === CAP || rv.r[c])) res += ESC + c;
+      else res += c;
+    });
+  } else {
+    for (i = 0; i < chars.length; i++) {
+      c = chars[i];
+      if (escOn && c === ESC && i + 1 < chars.length) { res += chars[i + 1]; i++; }
+      else if (capsOn && c === CAP && i + 1 < chars.length && rv.r[chars[i + 1]]) { res += rv.r[chars[i + 1]].toUpperCase(); i++; }
+      else res += rv.r[c] || c;
+    }
+  }
+  return res;
+}
+
+function ces(t, n) {
+  var s = (parseInt(n === undefined ? $('shift').value : n, 10) || 0) % 26;
+  s = (s + 26) % 26; if (mode === 'dec') s = (26 - s) % 26;
+  return t.replace(/[a-z]/gi, function (c) {
+    var b = c <= 'Z' ? 65 : 97;
+    return String.fromCharCode((c.charCodeAt(0) - b + s) % 26 + b);
+  });
+}
+
+function mor(t) {
+  var strip = function (c) { return c.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); };
+  if (mode === 'enc') {
+    return t.trim().split(/\s+/).filter(Boolean).map(function (w) {
+      return Array.from(w).map(function (c) { return MORSE[strip(c).toUpperCase()] || ''; }).filter(Boolean).join(' ');
+    }).join(' / ');
+  }
+  return t.trim().split(/\s*\/\s*/).map(function (w) {
+    return w.split(/\s+/).filter(Boolean).map(function (l) { return (RMORSE[l] || '?').toLowerCase(); }).join('');
+  }).join(' ');
+}
+
+function vkey(s) {
+  return (s === undefined ? $('vkey').value : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, '');
+}
+
+function vig(t, key) {
+  var k = vkey(key);
+  if (!k) { warn.textContent = 'Digite uma palavra-chave (só letras A–Z).'; return ''; }
+  var j = 0, sg = mode === 'enc' ? 1 : -1;
+  return t.replace(/[a-z]/gi, function (c) {
+    var b = c <= 'Z' ? 65 : 97, s = k.charCodeAt(j++ % k.length) - 97;
+    return String.fromCharCode(((c.charCodeAt(0) - b + sg * s) % 26 + 26) % 26 + b);
+  });
+}
+
+function bin(t) {
+  if (mode === 'enc') {
+    return Array.from(new TextEncoder().encode(t)).map(function (b) { return b.toString(2).padStart(8, '0'); }).join(' ');
+  }
+  var tk = t.trim().split(/\s+/).filter(Boolean);
+  if (tk.length === 1 && tk[0].length > 8 && tk[0].length % 8 === 0) tk = tk[0].match(/.{8}/g);
+  if (!tk.length) return '';
+  if (!tk.every(function (x) { return /^[01]{1,8}$/.test(x); })) { warn.textContent = 'Binário inválido: use só 0 e 1 em grupos de 8.'; return ''; }
+  return new TextDecoder().decode(new Uint8Array(tk.map(function (x) { return parseInt(x, 2); })));
+}
+
+function run() {
+  var t = inp.value, rv = reverse(), res = '';
+  warn.textContent = '';
+  if (code === 'tec') {
+    res = tec(Array.from(t), rv);
+    if (rv.dup.length) warn.textContent = 'Símbolo repetido no mapa: ' + rv.dup.join(' ') + '. A decodificação pode errar.';
+    else if (mode === 'dec' && !$('esc').checked) warn.textContent = 'Sem a proteção, pontuação normal (? ! ( ) etc.) também vira letra ao decodificar.';
+  } else res = apply(code, t);
+  outp.value = res;
+  if (!warn.textContent) warn.textContent = HELP[code]();
+  hisLater();
+}
+
+function drawRef() {
+  if (code === 'tec' || !CONV[code]) return;
+  var items = [], T, H, L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if (code === 'ces') {
+    var s = ((parseInt($('shift').value, 10) || 0) % 26 + 26) % 26;
+    T = 'Tabela do César';
+    H = 'Com deslocamento ' + s + ': a letra de cima vira a de baixo ao codificar.';
+    L.split('').forEach(function (c, n) { items.push([c, L[(n + s) % 26]]); });
+  } else if (code === 'vig') {
+    var k = vkey();
+    T = 'Chave em deslocamentos';
+    H = k ? 'Cada letra da chave é um César (A=0, B=1, C=2...). A 1ª letra do texto usa o 1º, a 2ª usa o 2º, e assim por diante, repetindo a chave.' : 'Digite uma palavra-chave para ver os deslocamentos.';
+    k.split('').forEach(function (c) { items.push([c.toUpperCase(), String(c.charCodeAt(0) - 97)]); });
+  } else if (code === 'rot' || code === 'atb') {
+    var a = code === 'atb';
+    T = a ? 'Tabela do Atbash' : 'Tabela do ROT13';
+    H = a ? 'O alfabeto é espelhado: A↔Z, B↔Y, C↔X...' : 'Cada letra anda 13 casas. Aplicar duas vezes volta ao original.';
+    L.split('').forEach(function (c, n) { items.push([c, L[a ? 25 - n : (n + 13) % 26]]); });
+  } else if (code === 'b64') {
+    T = 'Alfabeto Base64';
+    H = 'Cada símbolo vale um número de 0 a 63. O = no fim é só preenchimento.';
+    (L + L.toLowerCase() + '0123456789+/').split('').forEach(function (c, n) { items.push([c, String(n)]); });
+  } else if (code === 'hex') {
+    T = 'Dígitos hexadecimais';
+    H = 'Cada byte vira 2 dígitos (00 a FF). O texto vira bytes em UTF-8.';
+    '0123456789ABCDEF'.split('').forEach(function (c, n) { items.push([c, n.toString(2).padStart(4, '0')]); });
+  } else if (code === 'mor') {
+    T = 'Tabela do Morse';
+    H = 'Ponto e traço. Letras separadas por espaço, palavras por /.';
+    (L + '0123456789').split('').concat(Object.keys(MORSE).filter(function (k) { return !/^[A-Z0-9]$/.test(k); }))
+      .forEach(function (k) { items.push([k, MORSE[k]]); });
+  } else {
+    T = 'Tabela do binário';
+    H = 'Cada caractere vira 1 byte (8 bits). Acentos e emojis usam mais de um byte.';
+    (L + L.toLowerCase() + '0123456789').split('').forEach(function (c) {
+      items.push([c, c.charCodeAt(0).toString(2).padStart(8, '0')]);
+    });
+  }
+  $('refT').textContent = T; $('refH').textContent = H;
+  var g = $('refG'); g.innerHTML = '';
+  items.forEach(function (it) {
+    var d = document.createElement('div'); d.className = 'g';
+    var b = document.createElement('b'); b.textContent = it[0];
+    var i = document.createElement('i'); i.textContent = it[1];
+    d.appendChild(b); d.appendChild(i); g.appendChild(d);
+  });
+}
+
+function sh(t, s) {
+  return t.replace(/[a-z]/gi, function (c) { var b = c <= 'Z' ? 65 : 97; return String.fromCharCode((c.charCodeAt(0) - b + s) % 26 + b); });
+}
+function atb(t) {
+  return t.replace(/[a-z]/gi, function (c) { var b = c <= 'Z' ? 65 : 97; return String.fromCharCode(b + 25 - (c.charCodeAt(0) - b)); });
+}
+function bytes(t) { return new TextEncoder().encode(t); }
+function utf8(u8) {
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(u8); }
+  catch (e) { warn.textContent = 'Os bytes não formam um texto UTF-8 válido.'; return ''; }
+}
+function b64(t) {
+  if (mode === 'enc') { var s = ''; bytes(t).forEach(function (b) { s += String.fromCharCode(b); }); return btoa(s); }
+  var x = t.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
+  if (!x) return '';
+  if (!/^[A-Za-z0-9+\/]*={0,2}$/.test(x) || x.replace(/=+$/, '').length % 4 === 1) { warn.textContent = 'Base64 inválido: use A–Z, a–z, 0–9, + / e = no final.'; return ''; }
+  x = x.replace(/=+$/, ''); while (x.length % 4) x += '=';
+  try {
+    var raw = atob(x), u = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) u[i] = raw.charCodeAt(i);
+    return utf8(u);
+  } catch (e) { warn.textContent = 'Base64 inválido.'; return ''; }
+}
+function hex(t) {
+  if (mode === 'enc') return Array.from(bytes(t)).map(function (b) { return b.toString(16).toUpperCase().padStart(2, '0'); }).join(' ');
+  var h = t.replace(/0x|[\s,]/gi, '');
+  if (!h) return '';
+  if (!/^[0-9a-f]+$/i.test(h) || h.length % 2) { warn.textContent = 'Hexadecimal inválido: use pares de dígitos 0–9 e A–F (ex.: 4F 69).'; return ''; }
+  return utf8(new Uint8Array(h.match(/../g).map(function (p) { return parseInt(p, 16); })));
+}
+function apply(c, t, ex) {
+  ex = ex || {};
+  if (c === 'tec') return tec(Array.from(t), reverse());
+  if (c === 'ces') return ces(t, ex.n);
+  if (c === 'vig') return vig(t, ex.k);
+  if (c === 'rot') return sh(t, 13);
+  if (c === 'atb') return atb(t);
+  if (c === 'mor') return mor(t);
+  if (c === 'b64') return b64(t);
+  if (c === 'hex') return hex(t);
+  return bin(t);
+}
+function conv(c, t, m, ex) {
+  var M = mode, W = warn.textContent, r = '', e = '';
+  mode = m; warn.textContent = '';
+  try { r = apply(c, t, ex
+ound:var(--panel);color:var(--text);font-family:"VT323",monospace;font-size:1.4rem;line-height:1.25}
 .out{background:var(--bubble);color:#fff;border-color:transparent}
 .row{display:flex;gap:8px;margin-top:8px}
 .row button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;cursor:pointer}
