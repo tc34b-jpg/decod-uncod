@@ -1591,51 +1591,52 @@ function sh(t, s) {
 function atb(t) {
   return t.replace(/[a-z]/gi, function (c) { var b = c <= 'Z' ? 65 : 97; return String.fromCharCode(b + 25 - (c.charCodeAt(0) - b)); });
 }
-function bytes(t) { return new TextEncoder().encode(t); }
-function utf8(u8) {
-  try { return new TextDecoder('utf-8', { fatal: true }).decode(u8); }
-  catch (e) { warn.textContent = 'Os bytes não formam um texto UTF-8 válido.'; return ''; }
-}
-function b64(t) {
-  if (mode === 'enc') { var s = ''; bytes(t).forEach(function (b) { s += String.fromCharCode(b); }); return btoa(s); }
-  var x = t.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
-  if (!x) return '';
-  if (!/^[A-Za-z0-9+\/]*={0,2}$/.test(x) || x.replace(/=+$/, '').length % 4 === 1) { warn.textContent = 'Base64 inválido: use A–Z, a–z, 0–9, + / e = no final.'; return ''; }
-  x = x.replace(/=+$/, ''); while (x.length % 4) x += '=';
-  try {
-    var raw = atob(x), u = new Uint8Array(raw.length);
-    for (var i = 0; i < raw.length; i++) u[i] = raw.charCodeAt(i);
-    return utf8(u);
-  } catch (e) { warn.textContent = 'Base64 inválido.'; return ''; }
-}
-function hex(t) {
-  if (mode === 'enc') return Array.from(bytes(t)).map(function (b) { return b.toString(16).toUpperCase().padStart(2, '0'); }).join(' ');
-  var h = t.replace(/0x|[\s,]/gi, '');
-  if (!h) return '';
-  if (!/^[0-9a-f]+$/i.test(h) || h.length % 2) { warn.textContent = 'Hexadecimal inválido: use pares de dígitos 0–9 e A–F (ex.: 4F 69).'; return ''; }
-  return utf8(new Uint8Array(h.match(/../g).map(function (p) { return parseInt(p, 16); })));
-}
-function apply(c, t, ex) {
-  ex = ex || {};
-  if (c === 'tec') return tec(Array.from(t), reverse());
-  if (c === 'ces') return ces(t, ex.n);
-  if (c === 'vig') return vig(t, ex.k);
-  if (c === 'rot') return sh(t, 13);
-  if (c === 'atb') return atb(t);
-  if (c === 'mor') return mor(t);
-  if (c === 'b64') return b64(t);
-  if (c === 'hex') return hex(t);
-  return bin(t);
-}
-function conv(c, t, m, ex) {
-  var M = mode, W = warn.textContent, r = '', e = '';
-  mode = m; warn.textContent = '';
-  try { r = apply(c, t, ex
-turn tec(Array.from(t), reverse());
-  if (c === 'ces') return ces(t, ex.n);
-  if (c === 'vig') return vig(t, ex.k);
-  if (c === 'rot') return sh(t, 13);
-  if (c === 'atb') return atb(t);
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Teclado secreto</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Grotesk:wght@400;600&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eef0f4;--panel:#fff;--key:#d9dde5;--key-text:#23262d;--text:#1b1d22;--muted:#5d6370;--bubble:#1d56a6;--accent:#1d56a6;--line:#c9cedb;--warn:#a15c00}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#16181d;--panel:#1f2228;--key:#343841;--key-text:#e8eaef;--text:#e8eaef;--muted:#9aa1b0;--bubble:#1e5aa8;--accent:#6fa8f5;--line:#343841;--warn:#e5b25a}}
+:root[data-theme="dark"]{--bg:#16181d;--panel:#1f2228;--key:#343841;--key-text:#e8eaef;--text:#e8eaef;--muted:#9aa1b0;--bubble:#1e5aa8;--accent:#6fa8f5;--line:#343841;--warn:#e5b25a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Space Grotesk",system-ui,sans-serif;line-height:1.45}
+main{max-width:640px;margin:0 auto;padding:20px 14px 40px}
+h1{font-family:"VT323",monospace;font-weight:400;font-size:2.4rem;margin:0 0 2px}
+.sub{color:var(--muted);margin:0 0 16px;font-size:.95rem}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{flex:1;padding:10px 4px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.codes button{font-size:.8rem;padding:10px 2px}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 5px}
+textarea{width:100%;min-height:100px;resize:vertical;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-family:"VT323",monospace;font-size:1.4rem;line-height:1.25}
+.out{background:var(--bubble);color:#fff;border-color:transparent}
+.row{display:flex;gap:8px;margin-top:8px}
+.row button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;cursor:pointer}
+.row button.main{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+.opt{display:flex;align-items:flex-start;gap:8px;margin:8px 0 0;font-size:.9rem;color:var(--text)}
+.opt input[type=checkbox]{margin-top:3px;width:18px;height:18px;accent-color:var(--accent)}
+.opt small{display:block;color:var(--muted)}
+.num{width:80px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit}
+.warn{color:var(--warn);font-size:.85rem;margin:8px 0 0;min-height:1.2em}
+h2{font-size:1rem;margin:26px 0 4px}
+.hint{color:var(--muted);font-size:.85rem;margin:0 0 10px}
+.kb{display:flex;flex-direction:column;gap:6px;align-items:center}
+.kr{display:flex;gap:4px;width:100%;justify-content:center}
+.k{flex:1;max-width:58px;background:var(--key);border-radius:7px;padding:3px 2px 5px;text-align:center}
+.k b{display:block;font-family:"VT323",monospace;font-weight:400;font-size:1.5rem;line-height:1;color:var(--key-text)}
+.k i{display:block;font-style:normal;line-height:24px;width:100%;border-radius:4px;background:var(--panel);color:var(--accent);font-family:"VT323",monospace;font-size:1.3rem;margin-top:3px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px}
+.g{background:var(--key);border-radius:7px;padding:4px 2px 6px;text-align:center;min-width:0}
+.g b{display:block;font-family:"VT323",monospace;font-weight:400;font-size:1.4rem;line-height:1;color:var(--key-text)}
+.g i{display:block;font-style:normal;margin-top:3px;border-radius:4px;background:var(--panel);color:var(--accent);font-family:"VT323",monospace;font-size:1.1rem;line-height:22px;overflow:hidden}
+ (c === 'atb') return atb(t);
   if (c === 'mor') return mor(t);
   if (c === 'b64') return b64(t);
   if (c === 'hex') return hex(t);
