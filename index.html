@@ -1,598 +1,435 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Teclado secreto</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Grotesk:wght@400;600&display=swap">
+<meta name="theme-color" content="#060a14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+<title>Decod Uncod 2.0</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
-  --bg:#eef0f4;--panel:#fff;--key:#d9dde5;--key-text:#23262d;--text:#1b1d22;--muted:#5d6370;--bubble:#1d56a6;--accent:#1d56a6;--line:#c9cedb;--warn:#a15c00}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#16181d;--panel:#1f2228;--key:#343841;--key-text:#e8eaef;--text:#e8eaef;--muted:#9aa1b0;--bubble:#1e5aa8;--accent:#6fa8f5;--line:#343841;--warn:#e5b25a}}
-:root[data-theme="dark"]{--bg:#16181d;--panel:#1f2228;--key:#343841;--key-text:#e8eaef;--text:#e8eaef;--muted:#9aa1b0;--bubble:#1e5aa8;--accent:#6fa8f5;--line:#343841;--warn:#e5b25a}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+:root{--bg:#060a14;--p:#0a1120;--p2:#0e1830;--ln:#1b2b4d;--tx:#cfe0ff;--mu:#6d83ad;--ac:#3d8bff;--on:#04101f;--err:#ff6b7a;color-scheme:dark}
+[data-theme=light]{--bg:#e8eef8;--p:#f6f9ff;--p2:#e2eaf7;--ln:#b9c8e3;--tx:#0b1a38;--mu:#4a5f86;--ac:#1f5fd6;--on:#fff;--err:#c0243a;color-scheme:light}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:"Space Grotesk",system-ui,sans-serif;line-height:1.45}
-main{max-width:640px;margin:0 auto;padding:20px 14px 40px}
-h1{font-family:"VT323",monospace;font-weight:400;font-size:2.4rem;margin:0 0 2px}
-.sub{color:var(--muted);margin:0 0 16px;font-size:.95rem}
-.tabs{display:flex;gap:6px;margin-bottom:10px}
-.tabs button{flex:1;padding:10px 4px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
-.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
-.codes button{font-size:.8rem;padding:10px 2px}
-button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 5px}
-textarea{width:100%;min-height:100px;resize:vertical;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-family:"VT323",monospace;font-size:1.4rem;line-height:1.25}
-.out{background:var(--bubble);color:#fff;border-color:transparent}
-.row{display:flex;gap:8px;margin-top:8px}
-.row button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;cursor:pointer}
-.row button.main{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
-.opt{display:flex;align-items:flex-start;gap:8px;margin:8px 0 0;font-size:.9rem;color:var(--text)}
-.opt input[type=checkbox]{margin-top:3px;width:18px;height:18px;accent-color:var(--accent)}
-.opt small{display:block;color:var(--muted)}
-.num{width:80px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit}
-.warn{color:var(--warn);font-size:.85rem;margin:8px 0 0;min-height:1.2em}
-h2{font-size:1rem;margin:26px 0 4px}
-.hint{color:var(--muted);font-size:.85rem;margin:0 0 10px}
-.kb{display:flex;flex-direction:column;gap:6px;align-items:center}
-.kr{display:flex;gap:4px;width:100%;justify-content:center}
-.k{flex:1;max-width:58px;background:var(--key);border-radius:7px;padding:3px 2px 5px;text-align:center}
-.k b{display:block;font-family:"VT323",monospace;font-weight:400;font-size:1.5rem;line-height:1;color:var(--key-text)}
-.k i{display:block;font-style:normal;line-height:24px;width:100%;border-radius:4px;background:var(--panel);color:var(--accent);font-family:"VT323",monospace;font-size:1.3rem;margin-top:3px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px}
-.g{background:var(--key);border-radius:7px;padding:4px 2px 6px;text-align:center;min-width:0}
-.g b{display:block;font-family:"VT323",monospace;font-weight:400;font-size:1.4rem;line-height:1;color:var(--key-text)}
-.g i{display:block;font-style:normal;margin-top:3px;border-radius:4px;background:var(--panel);color:var(--accent);font-family:"VT323",monospace;font-size:1.1rem;line-height:22px;overflow:hidden}
-.cats button{font-size:.9rem}
-.chips{flex-wrap:wrap}
-.chips button{flex:none;padding:7px 12px;font-size:.85rem}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px}
-.card h3{font-size:.9rem;margin:0 0 4px;display:flex;justify-content:space-between;gap:8px}
-.card small{color:var(--muted);font-weight:400}
-.card pre{margin:0;white-space:pre-wrap;word-break:break-word;font-family:"VT323",monospace;font-size:1.25rem;line-height:1.2;max-height:9em;overflow:auto}
-.card .row button{padding:7px;font-size:.85rem}
-.qr{display:block;margin:12px auto 0;width:min(100%,320px);height:auto;image-rendering:pixelated;border-radius:8px;background:#fff}
-[hidden]{display:none!important}
+html{scroll-padding-top:96px;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:var(--bg) repeating-linear-gradient(0deg,transparent 0 2px,color-mix(in srgb,var(--ac) 5%,transparent) 2px 3px);color:var(--tx);font:20px/1.2 "VT323","Courier New",ui-monospace,monospace;overflow-x:hidden}
+.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--ln);padding-top:env(safe-area-inset-top)}
+.bar1{display:flex;align-items:center;justify-content:space-between;gap:8px;max-width:760px;margin:0 auto;padding:6px 10px 2px}
+.brand{display:flex;align-items:baseline;gap:8px}
+.brand b{font-weight:400;font-size:1.7rem;letter-spacing:1px;color:var(--ac);text-shadow:0 0 8px color-mix(in srgb,var(--ac) 40%,transparent)}
+.brand b::after{content:"_";animation:bl 1s steps(1) infinite}
+.brand small{color:var(--mu);font-size:.9rem}
+@keyframes bl{50%{opacity:0}}
+.theme{width:34px;height:34px;border:1px solid var(--ln);background:var(--p);color:var(--tx);border-radius:3px;font:inherit;font-size:1.1rem;cursor:pointer}
+.theme:hover{border-color:var(--ac)}
+nav{display:flex;max-width:760px;margin:0 auto;padding:0 4px}
+nav button{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;min-height:38px;padding:2px;border:0;border-bottom:2px solid transparent;background:none;color:var(--mu);font:inherit;cursor:pointer}
+nav button:hover{color:var(--tx)}
+nav button[aria-current=page]{color:var(--ac);border-bottom-color:var(--ac);background:var(--p)}
+nav svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+nav .f{display:none}
+@media(min-width:620px){nav .f{display:inline}nav .s{display:none}}
+main{max-width:760px;margin:0 auto;padding:10px 10px 28px}
+.view{animation:in .2s ease}
+@keyframes in{from{opacity:0}}
+h1{margin:2px 0 0;font-size:1.3rem;font-weight:400}
+h1::before{content:"> ";color:var(--ac)}
+.lead{color:var(--mu);margin:0 0 8px;font-size:.95rem}
+.card,.tool{background:var(--p);border:1px solid var(--ln);border-radius:4px;padding:8px;margin-bottom:10px}
+.lb{display:flex;justify-content:space-between;gap:8px;color:var(--mu);margin:8px 0 3px;font-size:.95rem}
+.pick+.lb,.opts+.lb{margin-top:6px}
+textarea,input{width:100%;max-width:100%;padding:5px 8px;background:var(--bg);color:var(--tx);border:1px solid var(--ln);border-radius:3px;font:inherit;font-size:1.1rem;caret-color:var(--ac)}
+textarea{min-height:4.6em;resize:vertical;line-height:1.15}
+textarea:focus,input:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
+textarea[readonly]{color:var(--ac)}
+button:focus-visible{outline:1px solid var(--ac);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.btn{min-height:36px;padding:2px 11px;border:1px solid var(--ln);background:var(--p2);color:var(--tx);border-radius:3px;font:inherit;cursor:pointer;transition:.12s}
+.btn:hover{border-color:var(--ac);color:var(--ac)}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:var(--on)}
+.btn.pri:hover{filter:brightness(1.12);color:var(--on)}
+.btn:disabled{opacity:.55;cursor:wait}
+.pick{display:grid;gap:5px}
+.cats,.meths,.chips{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.chip{min-height:30px;padding:0 9px;border:1px solid var(--ln);border-radius:3px;background:none;color:var(--mu);font:inherit;cursor:pointer}
+.chip:hover{color:var(--tx);border-color:var(--mu)}
+.chip[aria-pressed=true]{color:var(--ac);border-color:var(--ac);background:color-mix(in srgb,var(--ac) 10%,transparent)}
+.cats .chip[aria-pressed=true]{background:var(--ac);color:var(--on)}
+.btns .chip{min-height:36px}
+.dim{color:var(--mu);font-size:.95rem}
+.opts{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.opts label{display:flex;align-items:center;gap:6px;color:var(--mu)}
+.opts input{width:6.5em}
+.info,.err{margin-top:5px;font-size:1rem}
+.info{color:var(--ac)}.err{color:var(--err)}
+.info:not(:empty)::before{content:"[i] "}.err:not(:empty)::before{content:"[!] "}
+.kb{display:flex;flex-direction:column;gap:4px;align-items:center}
+.kr{display:flex;gap:3px;width:100%;justify-content:center}
+.k{position:relative;flex:1;max-width:46px;height:40px;display:grid;place-items:center;border:1px solid var(--ln);border-radius:4px;background:var(--p2)}
+.k b{font-weight:400;font-size:1.35rem;line-height:1}
+.k i{position:absolute;top:0;right:3px;font-style:normal;font-size:.9rem;color:var(--ac)}
+.h{padding:6px 8px}
+.h pre{margin:4px 0 0;white-space:pre-wrap;word-break:break-word;font:inherit;font-size:1rem;max-height:3.6em;overflow:hidden}
+.meta{display:flex;justify-content:space-between;gap:8px;color:var(--mu);font-size:.95rem}.meta b{font-weight:400;color:var(--ac)}
+.qrc{display:block;margin:10px auto 0;width:min(100%,280px);height:auto;image-rendering:pixelated;border:6px solid #fff;background:#fff}
+#toasts{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));display:grid;gap:5px;justify-items:start;z-index:9;pointer-events:none}
+.toast{padding:3px 10px;border:1px solid var(--ac);border-radius:3px;background:var(--p);animation:in .15s;transition:opacity .35s}
+.toast::before{content:"> ";color:var(--ac)}
+.toast.err{border-color:var(--err)}.toast.err::before{color:var(--err)}.toast.out{opacity:0}
+@media(prefers-reduced-motion:reduce){*,.brand b::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<header class="top">
+  <div class="bar1"><div class="brand"><b>DECOD_UNCOD</b><small>v2.0 · terminal</small></div><button class="theme" id="theme" type="button"></button></div>
+  <nav id="nav" aria-label="Ferramentas"></nav>
+</header>
 <main>
-  <h1>Teclado secreto</h1>
-  <p class="sub">Codifique e decodifique mensagens. O código principal usa os símbolos de segurar tecla do Gboard.</p>
-
-  <div class="tabs cats" id="cats"></div>
-  <div class="tabs codes" id="codes"></div>
-
-  <div id="vConv">
-  <div class="tabs">
-    <button id="tEnc" aria-pressed="true">Codificar</button>
-    <button id="tDec" aria-pressed="false">Decodificar</button>
-  </div>
-
-  <div id="pTec">
-    <label class="opt" for="esc"><input type="checkbox" id="esc" checked><span>Proteger pontuação de verdade<small>Um ? ! " ( ) etc. normal vira ~? ~! ~" ... e volta certo ao decodificar.</small></span></label>
-    <label class="opt" for="caps"><input type="checkbox" id="caps" checked><span>Marcar maiúsculas<small>Letra maiúscula ganha um ^ na frente (A vira ^@) e volta maiúscula ao decodificar.</small></span></label>
-  </div>
-  <div id="pCes" hidden>
-    <label class="opt" for="shift" style="align-items:center">Deslocamento <input class="num" type="number" id="shift" value="3" min="1" max="25"></label>
-  </div>
-
-  <div id="pVig" hidden>
-    <label class="opt" for="vkey" style="align-items:center">Palavra-chave <input class="num" style="width:170px" type="text" id="vkey" value="chave" autocomplete="off" autocapitalize="off"></label>
-  </div>
-
-  <label for="inp" id="lblIn">Texto normal</label>
-  <textarea id="inp"></textarea>
-  <div class="row">
-    <button id="paste">Colar</button>
-    <button id="swap">Inverter ⇅</button>
-    <button id="clear">Limpar</button>
-  </div>
-
-  <label for="outp" id="lblOut">Texto codificado</label>
-  <textarea id="outp" class="out" readonly></textarea>
-  <div class="row">
-    <button id="copy" class="main">Copiar</button>
-    <button id="share" class="main">Compartilhar</button>
-  </div>
-  <p class="warn" id="warn" role="status"></p>
-
-  <div id="mapa">
-    <h2>Mapa das teclas</h2>
-    <p class="hint">Cada letra vira o símbolo que aparece ao segurar a tecla no Gboard.</p>
-    <div class="kb" id="kb"></div>
-  </div>
-  <div id="refOther" hidden>
-    <h2 id="refT"></h2>
-    <p class="hint" id="refH"></p>
-    <div class="grid" id="refG"></div>
-  </div>
-  </div>
-
-  <div id="vDet" hidden>
-    <p class="hint">Cole um texto para ver os formatos prováveis. Toda identificação é uma hipótese: formatos ambíguos podem ter mais de uma leitura.</p>
-    <label for="detIn">Texto para analisar</label>
-    <textarea id="detIn"></textarea>
-    <div class="row"><button id="detPaste">Colar</button><button id="detClear">Limpar</button></div>
-    <div id="detOut"></div>
-    <label>Testar outra interpretação</label>
-    <div class="tabs chips" id="detTry"></div>
-  </div>
-
-  <div id="vLab" hidden>
-    <p class="hint">Escreva uma mensagem e veja o resultado em vários métodos ao mesmo tempo. Ligue ou desligue cada um.</p>
-    <label for="labIn">Mensagem</label>
-    <textarea id="labIn"></textarea>
-    <div class="row" style="align-items:center">
-      <label class="opt" style="margin:0">César <input class="num" type="number" id="labShift" value="3" min="1" max="25"></label>
-      <label class="opt" style="margin:0">Vigenère <input class="num" style="width:110px" type="text" id="labKey" value="chave" autocomplete="off"></label>
-    </div>
-    <label>Métodos</label>
-    <div class="tabs chips" id="labTog"></div>
-    <div id="labOut"></div>
-  </div>
-
-  <div id="vQr" hidden>
-    <label for="qrIn">Texto ou link</label>
-    <textarea id="qrIn" placeholder="https://..."></textarea>
-    <canvas id="qrCv" class="qr" hidden></canvas>
-    <p class="warn" id="qrW" role="status"></p>
-    <div class="row"><button id="qrDl" class="main">Baixar PNG</button><button id="qrCp">Copiar conteúdo</button></div>
-  </div>
-
-  <div id="vHis" hidden>
-    <p class="hint">Fica só neste aparelho (localStorage), no máximo 50 conversões. Nada é enviado para servidores.</p>
-    <label class="opt" for="hisOn"><input type="checkbox" id="hisOn" checked><span>Salvar conversões automaticamente</span></label>
-    <div class="row"><button id="hisClr">Limpar tudo</button></div>
-    <div id="hisList"></div>
-  </div>
+  <section class="view" data-v="dec"><h1>Decodificador</h1><p class="lead">// converte em tempo real: cole ou digite, escolha o método ou use Auto</p><div id="dec"></div></section>
+  <section class="view" data-v="lab" hidden><h1>Laboratório</h1><p class="lead">// converta nos dois sentidos, ao vivo</p><div id="lab"></div></section>
+  <section class="view" data-v="kb" hidden><h1>Teclado secreto</h1><p class="lead">// em tempo real: cada letra vira o símbolo de segurar a tecla no Gboard</p><div id="kbmap"></div><div id="kb"></div></section>
+  <section class="view" data-v="qr" hidden><h1>Gerador de QR Code</h1><p class="lead">// feito no navegador; só a biblioteca é baixada</p><div id="qr"></div></section>
+  <section class="view" data-v="his" hidden><h1>Histórico</h1><p class="lead">// só neste aparelho · máx. 100 conversões</p><div id="his"></div></section>
 </main>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<div id="toasts" aria-live="polite"></div>
 <script>
-var map = {q:'%',w:'\\',e:'|',r:'=',t:'[',y:']',u:'<',i:'>',o:'{',p:'}',
-  a:'@',s:'#',d:'$',f:'_',g:'&',h:'-',j:'+',k:'(',l:')',
-  z:'*',x:'"',c:"'",v:':',b:';',n:'!',m:'?'};
-var ROWS = ['qwertyuiop','asdfghjkl','zxcvbnm'];
-var MORSE = {A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',
- '0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.',
- '.':'.-.-.-',',':'--..--','?':'..--..','!':'-.-.--',"'":'.----.','/':'-..-.','(':'-.--.',')':'-.--.-',':':'---...',';':'-.-.-.','=':'-...-','+':'.-.-.','-':'-....-','@':'.--.-.'};
-var RMORSE = {}; Object.keys(MORSE).forEach(function (k) { RMORSE[MORSE[k]] = k; });
-
-var code = 'tec', mode = 'enc';
-var NM = {tec:'Teclado',ces:'César',vig:'Vigenère',rot:'ROT13',atb:'Atbash',mor:'Morse',bin:'Binário',b64:'Base64',hex:'Hexadecimal',det:'Detector',lab:'Laboratório',qr:'QR Code',his:'Histórico'};
-var TOOLS = {cif:['tec','ces','vig','rot','atb'], cod:['mor','bin','b64','hex'], ana:['det','lab'], fer:['qr','his']};
-var GN = {cif:'Cifras', cod:'Codificações', ana:'Análise', fer:'Ferramentas'};
-var VIEW = {det:'vDet', lab:'vLab', qr:'vQr', his:'vHis'};
-var CONV = {}, GROUP = {};
-Object.keys(TOOLS).forEach(function (g) { TOOLS[g].forEach(function (id) { GROUP[id] = g; if (g === 'cif' || g === 'cod') CONV[id] = true; }); });
-var $ = function (id) { return document.getElementById(id); };
-var inp = $('inp'), outp = $('outp'), warn = $('warn');
-
-var HELP = {
-  tec: function () { return ''; },
-  ces: function () { return 'Só troca letras A–Z. Acentos e números ficam iguais. O deslocamento precisa ser o mesmo nos dois lados.'; },
-  mor: function () { return mode === 'enc' ? 'Acentos viram letra sem acento. Caracteres que não existem no Morse são ignorados.' : 'Separe letras com espaço e palavras com /. O resultado sai em minúsculas.'; },
-  vig: function () { return 'Só troca letras A–Z (acentos e números ficam iguais). Use a mesma palavra-chave nos dois lados.'; },
-  rot: function () { return 'ROT13 é simétrico: aplicar duas vezes volta ao original. Só troca letras A–Z.'; },
-  atb: function () { return 'Atbash também é simétrico (A↔Z, B↔Y...). Só troca letras A–Z.'; },
-  b64: function () { return 'Texto em UTF-8: acentos e emojis funcionam. Aceita também Base64 URL-safe.'; },
-  hex: function () { return mode === 'enc' ? 'Cada byte UTF-8 vira dois dígitos hexadecimais.' : 'Aceita pares separados por espaço, vírgula ou 0x.'; },
-  bin: function () { return ''; }
+'use strict';
+(() => {
+const $ = (s, r = document) => r.querySelector(s);
+const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const toast = (m, t = '') => {
+  const e = el('div', 'toast ' + t, m); $('#toasts').append(e);
+  setTimeout(() => e.classList.add('out'), 2400); setTimeout(() => e.remove(), 2900);
+};
+const copy = async t => {
+  try { await navigator.clipboard.writeText(t); toast('Copiado!', 'ok'); }
+  catch { toast('Não foi possível copiar. Selecione o texto e copie manualmente.', 'err'); }
 };
 
-function reverse() {
-  var r = {}, dup = [];
-  Object.keys(map).forEach(function (l) { var s = map[l]; if (r[s]) dup.push(s); else r[s] = l; });
-  return { r: r, dup: dup };
-}
+const paste = async f => { try { f(await navigator.clipboard.readText()); } catch { toast('Não consegui acessar a área de transferência. Segure no campo e toque em Colar.', 'err'); } };
+const share = t => {
+  if (!t) return toast('Nada para compartilhar.', 'err');
+  if (navigator.share) navigator.share({ text: t }).catch(() => {});
+  else copy(t).then(() => toast('Compartilhar indisponível neste navegador: texto copiado.'));
+};
 
-function tec(chars, rv) {
-  var escOn = $('esc').checked, capsOn = $('caps').checked, ESC = '~', CAP = '^', res = '', i, c;
-  if (mode === 'enc') {
-    chars.forEach(function (c) {
-      var l = c.toLowerCase();
-      if (/^[a-z]$/.test(l)) res += ((capsOn && c !== l) ? CAP : '') + map[l];
-      else if (escOn && (c === ESC || c === CAP || rv.r[c])) res += ESC + c;
-      else res += c;
-    });
-  } else {
-    for (i = 0; i < chars.length; i++) {
-      c = chars[i];
-      if (escOn && c === ESC && i + 1 < chars.length) { res += chars[i + 1]; i++; }
-      else if (capsOn && c === CAP && i + 1 < chars.length && rv.r[chars[i + 1]]) { res += rv.r[chars[i + 1]].toUpperCase(); i++; }
-      else res += rv.r[c] || c;
-    }
-  }
-  return res;
-}
+/* ============ Codecs: enc/dec(texto, opções) → texto, ou lançam Error ============ */
+const fail = m => { throw new Error(m); };
+const U8 = s => new TextEncoder().encode(s);
+const S8 = b => { try { return new TextDecoder('utf-8', { fatal: true }).decode(b); } catch { return fail('Os bytes não formam um texto UTF-8 válido.'); } };
+const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, '');
+const shift = (t, f) => t.replace(/[a-z]/gi, c => { const b = c < 'a' ? 65 : 97; return String.fromCharCode((((f(c.charCodeAt(0) - b)) % 26) + 26) % 26 + b); });
+const sym = f => ({ enc: f, dec: f });
+const num = o => { const n = parseInt(o.shift, 10); return Number.isFinite(n) ? n : fail('Informe um deslocamento numérico.'); };
+const vig = sg => (t, o) => {
+  const k = norm(o.key || '') || fail('A palavra-chave precisa ter ao menos uma letra (A–Z).');
+  let j = 0; return shift(t, x => x + sg * (k.charCodeAt(j++ % k.length) - 97));
+};
+const MC = '.-|-...|-.-.|-..|.|..-.|--.|....|..|.---|-.-|.-..|--|-.|---|.--.|--.-|.-.|...|-|..-|...-|.--|-..-|-.--|--..|-----|.----|..---|...--|....-|.....|-....|--...|---..|----.'.split('|');
+const MORSE = {};
+'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('').forEach((c, i) => { MORSE[c] = MC[i]; });
+Object.assign(MORSE, { '.': '.-.-.-', ',': '--..--', '?': '..--..', '!': '-.-.--', "'": '.----.', '/': '-..-.', '(': '-.--.', ')': '-.--.-', ':': '---...', ';': '-.-.-.', '=': '-...-', '+': '.-.-.', '-': '-....-', '@': '.--.-.' });
+const RM = Object.fromEntries(Object.entries(MORSE).map(([k, v]) => [v, k]));
+const KEYS = { q: '%', w: '\\', e: '|', r: '=', t: '[', y: ']', u: '<', i: '>', o: '{', p: '}', a: '@', s: '#', d: '$', f: '_', g: '&', h: '-', j: '+', k: '(', l: ')', z: '*', x: '"', c: "'", v: ':', b: ';', n: '!', m: '?' };
+const KR = Object.fromEntries(Object.entries(KEYS).map(([k, v]) => [v, k]));
 
-function ces(t, n) {
-  var s = (parseInt(n === undefined ? $('shift').value : n, 10) || 0) % 26;
-  s = (s + 26) % 26; if (mode === 'dec') s = (26 - s) % 26;
-  return t.replace(/[a-z]/gi, function (c) {
-    var b = c <= 'Z' ? 65 : 97;
-    return String.fromCharCode((c.charCodeAt(0) - b + s) % 26 + b);
-  });
-}
+const C = {
+  cesar: { name: 'Cifra de César', g: 'Cifras',
+    enc: (t, o) => { const n = num(o); return shift(t, x => x + n); },
+    dec: (t, o) => { const n = num(o); return shift(t, x => x - n); } },
+  vig: { name: 'Vigenère', g: 'Cifras', enc: vig(1), dec: vig(-1) },
+  rot13: { name: 'ROT13', g: 'Cifras', ...sym(t => shift(t, x => x + 13)) },
+  atbash: { name: 'Atbash', g: 'Cifras', ...sym(t => shift(t, x => 25 - x)) },
+  morse: { name: 'Código Morse', g: 'Codificações',
+    enc: t => {
+      const r = t.trim().split(/\s+/).map(w => [...w].map(c => MORSE[c.normalize('NFD')[0].toUpperCase()]).filter(Boolean).join(' ')).filter(Boolean).join(' / ');
+      return r || fail('Nenhum caractere pôde ser convertido para Morse.');
+    },
+    dec: t => {
+      if (/[^.\-/\s]/.test(t)) fail('Morse inválido: use apenas pontos, traços, espaços e /.');
+      return t.trim().split(/\s*\/\s*/).map(w => w.split(/\s+/).filter(Boolean).map(x => RM[x] || fail('Sequência Morse desconhecida: ' + x)).join('')).join(' ');
+    } },
+  bin: { name: 'Binário (UTF-8)', g: 'Codificações',
+    enc: t => [...U8(t)].map(b => b.toString(2).padStart(8, '0')).join(' '),
+    dec: t => {
+      let k = t.trim().split(/\s+/);
+      if (k.length === 1 && k[0].length > 8 && k[0].length % 8 === 0) k = k[0].match(/.{8}/g);
+      if (!k.every(x => /^[01]{8}$/.test(x))) fail('Binário inválido: use grupos de 8 dígitos (0 e 1).');
+      return S8(Uint8Array.from(k, x => parseInt(x, 2)));
+    } },
+  b64: { name: 'Base64', g: 'Codificações',
+    enc: t => { let s = ''; U8(t).forEach(b => { s += String.fromCharCode(b); }); return btoa(s); },
+    dec: t => {
+      let x = t.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
+      if (!x || !/^[A-Za-z0-9+/]*={0,2}$/.test(x) || x.replace(/=+$/, '').length % 4 === 1) fail('Base64 inválido: use A–Z, a–z, 0–9, + / e = no final.');
+      x = x.replace(/=+$/, ''); while (x.length % 4) x += '=';
+      return S8(Uint8Array.from(atob(x), c => c.charCodeAt(0)));
+    } },
+  hex: { name: 'Hexadecimal', g: 'Codificações',
+    enc: t => [...U8(t)].map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' '),
+    dec: t => {
+      const h = t.replace(/0x|[\s,]/gi, '');
+      if (!/^[0-9a-f]+$/i.test(h) || h.length % 2) fail('Hexadecimal inválido: use pares de dígitos 0–9 e A–F (ex.: 4F 69).');
+      return S8(Uint8Array.from(h.match(/../g), p => parseInt(p, 16)));
+    } },
+  url: { name: 'URL encoding', g: 'Codificações',
+    enc: t => { try { return encodeURIComponent(t); } catch { return fail('O texto contém caracteres Unicode inválidos.'); } },
+    dec: t => { try { return decodeURIComponent(t); } catch { return fail('URL encoding inválido: há uma sequência % incompleta ou inválida.'); } } },
+  uni: { name: 'Escapes Unicode (\\uXXXX)', g: 'Codificações',
+    enc: t => Array.from({ length: t.length }, (_, k) => '\\u' + t.charCodeAt(k).toString(16).padStart(4, '0')).join(''),
+    dec: t => {
+      if (!/\\u/.test(t)) fail('Nenhum escape \\uXXXX encontrado.');
+      return t.replace(/\\u\{([0-9a-fA-F]{1,6})\}|\\u([0-9a-fA-F]{4})/g, (m, a, b) => {
+        const n = parseInt(a || b, 16); return n > 0x10ffff ? fail('Ponto de código Unicode inválido.') : String.fromCodePoint(n);
+      });
+    } },
+  kb: { name: 'Teclado secreto', g: 'Especial',
+    enc: t => Array.from(t).map(c => {
+      const l = c.toLowerCase();
+      if (/^[a-z]$/.test(l)) return (c !== l ? '^' : '') + KEYS[l];
+      return (c === '~' || c === '^' || KR[c]) ? '~' + c : c;
+    }).join(''),
+    dec: t => {
+      const a = Array.from(t); let r = '';
+      for (let i = 0; i < a.length; i++) {
+        const c = a[i], n = a[i + 1];
+        if (c === '~' && n !== undefined) { r += n; i++; }
+        else if (c === '^' && n !== undefined && KR[n]) { r += KR[n].toUpperCase(); i++; }
+        else r += KR[c] || c;
+      }
+      return r;
+    } }
+};
+const DEC = ['cesar', 'vig', 'rot13', 'atbash', 'morse', 'bin', 'b64', 'hex', 'url'].concat('uni');
+const LAB = ['b64', 'hex', 'bin', 'morse', 'url', 'uni'];
 
-function mor(t) {
-  var strip = function (c) { return c.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); };
-  if (mode === 'enc') {
-    return t.trim().split(/\s+/).filter(Boolean).map(function (w) {
-      return Array.from(w).map(function (c) { return MORSE[strip(c).toUpperCase()] || ''; }).filter(Boolean).join(' ');
-    }).join(' / ');
-  }
-  return t.trim().split(/\s*\/\s*/).map(function (w) {
-    return w.split(/\s+/).filter(Boolean).map(function (l) { return (RMORSE[l] || '?').toLowerCase(); }).join('');
-  }).join(' ');
-}
-
-function vkey(s) {
-  return (s === undefined ? $('vkey').value : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, '');
-}
-
-function vig(t, key) {
-  var k = vkey(key);
-  if (!k) { warn.textContent = 'Digite uma palavra-chave (só letras A–Z).'; return ''; }
-  var j = 0, sg = mode === 'enc' ? 1 : -1;
-  return t.replace(/[a-z]/gi, function (c) {
-    var b = c <= 'Z' ? 65 : 97, s = k.charCodeAt(j++ % k.length) - 97;
-    return String.fromCharCode(((c.charCodeAt(0) - b + sg * s) % 26 + 26) % 26 + b);
-  });
-}
-
-function bin(t) {
-  if (mode === 'enc') {
-    return Array.from(new TextEncoder().encode(t)).map(function (b) { return b.toString(2).padStart(8, '0'); }).join(' ');
-  }
-  var tk = t.trim().split(/\s+/).filter(Boolean);
-  if (tk.length === 1 && tk[0].length > 8 && tk[0].length % 8 === 0) tk = tk[0].match(/.{8}/g);
-  if (!tk.length) return '';
-  if (!tk.every(function (x) { return /^[01]{1,8}$/.test(x); })) { warn.textContent = 'Binário inválido: use só 0 e 1 em grupos de 8.'; return ''; }
-  return new TextDecoder().decode(new Uint8Array(tk.map(function (x) { return parseInt(x, 2); })));
-}
-
-function run() {
-  var t = inp.value, rv = reverse(), res = '';
-  warn.textContent = '';
-  if (code === 'tec') {
-    res = tec(Array.from(t), rv);
-    if (rv.dup.length) warn.textContent = 'Símbolo repetido no mapa: ' + rv.dup.join(' ') + '. A decodificação pode errar.';
-    else if (mode === 'dec' && !$('esc').checked) warn.textContent = 'Sem a proteção, pontuação normal (? ! ( ) etc.) também vira letra ao decodificar.';
-  } else res = apply(code, t);
-  outp.value = res;
-  if (!warn.textContent) warn.textContent = HELP[code]();
-  hisLater();
-}
-
-function drawRef() {
-  if (code === 'tec' || !CONV[code]) return;
-  var items = [], T, H, L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  if (code === 'ces') {
-    var s = ((parseInt($('shift').value, 10) || 0) % 26 + 26) % 26;
-    T = 'Tabela do César';
-    H = 'Com deslocamento ' + s + ': a letra de cima vira a de baixo ao codificar.';
-    L.split('').forEach(function (c, n) { items.push([c, L[(n + s) % 26]]); });
-  } else if (code === 'vig') {
-    var k = vkey();
-    T = 'Chave em deslocamentos';
-    H = k ? 'Cada letra da chave é um César (A=0, B=1, C=2...). A 1ª letra do texto usa o 1º, a 2ª usa o 2º, e assim por diante, repetindo a chave.' : 'Digite uma palavra-chave para ver os deslocamentos.';
-    k.split('').forEach(function (c) { items.push([c.toUpperCase(), String(c.charCodeAt(0) - 97)]); });
-  } else if (code === 'rot' || code === 'atb') {
-    var a = code === 'atb';
-    T = a ? 'Tabela do Atbash' : 'Tabela do ROT13';
-    H = a ? 'O alfabeto é espelhado: A↔Z, B↔Y, C↔X...' : 'Cada letra anda 13 casas. Aplicar duas vezes volta ao original.';
-    L.split('').forEach(function (c, n) { items.push([c, L[a ? 25 - n : (n + 13) % 26]]); });
-  } else if (code === 'b64') {
-    T = 'Alfabeto Base64';
-    H = 'Cada símbolo vale um número de 0 a 63. O = no fim é só preenchimento.';
-    (L + L.toLowerCase() + '0123456789+/').split('').forEach(function (c, n) { items.push([c, String(n)]); });
-  } else if (code === 'hex') {
-    T = 'Dígitos hexadecimais';
-    H = 'Cada byte vira 2 dígitos (00 a FF). O texto vira bytes em UTF-8.';
-    '0123456789ABCDEF'.split('').forEach(function (c, n) { items.push([c, n.toString(2).padStart(4, '0')]); });
-  } else if (code === 'mor') {
-    T = 'Tabela do Morse';
-    H = 'Ponto e traço. Letras separadas por espaço, palavras por /.';
-    (L + '0123456789').split('').concat(Object.keys(MORSE).filter(function (k) { return !/^[A-Z0-9]$/.test(k); }))
-      .forEach(function (k) { items.push([k, MORSE[k]]); });
-  } else {
-    T = 'Tabela do binário';
-    H = 'Cada caractere vira 1 byte (8 bits). Acentos e emojis usam mais de um byte.';
-    (L + L.toLowerCase() + '0123456789').split('').forEach(function (c) {
-      items.push([c, c.charCodeAt(0).toString(2).padStart(8, '0')]);
-    });
-  }
-  $('refT').textContent = T; $('refH').textContent = H;
-  var g = $('refG'); g.innerHTML = '';
-  items.forEach(function (it) {
-    var d = document.createElement('div'); d.className = 'g';
-    var b = document.createElement('b'); b.textContent = it[0];
-    var i = document.createElement('i'); i.textContent = it[1];
-    d.appendChild(b); d.appendChild(i); g.appendChild(d);
-  });
-}
-
-function sh(t, s) {
-  return t.replace(/[a-z]/gi, function (c) { var b = c <= 'Z' ? 65 : 97; return String.fromCharCode((c.charCodeAt(0) - b + s) % 26 + b); });
-}
-function atb(t) {
-  return t.replace(/[a-z]/gi, function (c) { var b = c <= 'Z' ? 65 : 97; return String.fromCharCode(b + 25 - (c.charCodeAt(0) - b)); });
-}
-function bytes(t) { return new TextEncoder().encode(t); }
-function utf8(u8) {
-  try { return new TextDecoder('utf-8', { fatal: true }).decode(u8); }
-  catch (e) { warn.textContent = 'Os bytes não formam um texto UTF-8 válido.'; return ''; }
-}
-function b64(t) {
-  if (mode === 'enc') { var s = ''; bytes(t).forEach(function (b) { s += String.fromCharCode(b); }); return btoa(s); }
-  var x = t.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
-  if (!x) return '';
-  if (!/^[A-Za-z0-9+\/]*={0,2}$/.test(x) || x.replace(/=+$/, '').length % 4 === 1) { warn.textContent = 'Base64 inválido: use A–Z, a–z, 0–9, + / e = no final.'; return ''; }
-  x = x.replace(/=+$/, ''); while (x.length % 4) x += '=';
-  try {
-    var raw = atob(x), u = new Uint8Array(raw.length);
-    for (var i = 0; i < raw.length; i++) u[i] = raw.charCodeAt(i);
-    return utf8(u);
-  } catch (e) { warn.textContent = 'Base64 inválido.'; return ''; }
-}
-function hex(t) {
-  if (mode === 'enc') return Array.from(bytes(t)).map(function (b) { return b.toString(16).toUpperCase().padStart(2, '0'); }).join(' ');
-  var h = t.replace(/0x|[\s,]/gi, '');
-  if (!h) return '';
-  if (!/^[0-9a-f]+$/i.test(h) || h.length % 2) { warn.textContent = 'Hexadecimal inválido: use pares de dígitos 0–9 e A–F (ex.: 4F 69).'; return ''; }
-  return utf8(new Uint8Array(h.match(/../g).map(function (p) { return parseInt(p, 16); })));
-}
-function apply(c, t, ex) {
-  ex = ex || {};
-  if (c === 'tec') return tec(Array.from(t), reverse());
-  if (c === 'ces') return ces(t, ex.n);
-  if (c === 'vig') return vig(t, ex.k);
-  if (c === 'rot') return sh(t, 13);
-  if (c === 'atb') return atb(t);
-  if (c === 'mor') return mor(t);
-  if (c === 'b64') return b64(t);
-  if (c === 'hex') return hex(t);
-  return bin(t);
-}
-function conv(c, t, m, ex) {
-  var M = mode, W = warn.textContent, r = '', e = '';
-  mode = m; warn.textContent = '';
-  try { r = apply(c, t, ex); e = warn.textContent; } catch (x) { e = 'Entrada inválida.'; }
-  mode = M; warn.textContent = W;
-  return { r: r, e: e };
-}
-
-function el(tag, cls, txt) {
-  var e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (txt !== undefined) e.textContent = txt;
-  return e;
-}
-function mkCard(head, sub, body, btns) {
-  var c = el('div', 'card'), h = el('h3');
-  h.appendChild(el('span', '', head)); h.appendChild(el('small', '', sub || ''));
-  c.appendChild(h); c.appendChild(el('pre', '', body));
-  if (btns.length) {
-    var r = el('div', 'row');
-    btns.forEach(function (b) { var x = el('button', '', b[0]); x.onclick = function () { b[1](x); }; r.appendChild(x); });
-    c.appendChild(r);
-  }
-  return c;
-}
-function copyTo(b, v) {
-  var o = b.getAttribute('data-o') || b.textContent; b.setAttribute('data-o', o);
-  function msg(s) { b.textContent = s; setTimeout(function () { b.textContent = o; }, 1300); }
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(function () { msg('Copiado!'); }, function () { msg('Não copiou'); });
-  else msg('Não copiou');
-}
-
-function mk(p, txt, a, v, on) { var b = el('button', '', txt); b.setAttribute(a, v); b.setAttribute('aria-pressed', on); p.appendChild(b); }
-function nav() {
-  var g = GROUP[code], c = $('cats'), t = $('codes');
-  c.innerHTML = ''; t.innerHTML = '';
-  Object.keys(TOOLS).forEach(function (k) { mk(c, GN[k], 'data-g', k, k === g); });
-  TOOLS[g].forEach(function (id) { mk(t, NM[id], 'data-c', id, id === code); });
-}
-
-/* ---- Histórico ---- */
-var HK = 'decod-hist', HMAX = 50, ht;
-function hisGet() { try { var a = JSON.parse(localStorage.getItem(HK)); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
-function hisSet(a) { try { localStorage.setItem(HK, JSON.stringify(a.slice(0, HMAX))); } catch (e) {} }
-function hisLater() { clearTimeout(ht); ht = setTimeout(hisAdd, 1500); }
-function hisAdd() {
-  if (!CONV[code] || !$('hisOn').checked) return;
-  var t = inp.value.slice(0, 2000), r = outp.value.slice(0, 4000);
-  if (!t.trim() || !r) return;
-  var a = hisGet().filter(function (x) { return !(x.c === code && x.m === mode && x.t === t); });
-  a.unshift({ c: code, m: mode, t: t, r: r, d: Date.now() });
-  hisSet(a);
-}
-function hisDraw() {
-  var box = $('hisList'), a = hisGet();
-  box.innerHTML = '';
-  if (!a.length) { box.appendChild(el('p', 'hint', 'Nenhuma conversão salva ainda.')); return; }
-  a.forEach(function (x) {
-    if (!x || typeof x.t !== 'string' || typeof x.r !== 'string') return;
-    var when = new Date(x.d).toLocaleString('pt-BR');
-    box.appendChild(mkCard((NM[x.c] || '?') + (x.m === 'dec' ? ' · decodificar' : ' · codificar'), when, x.t + '\n→ ' + x.r, [
-      ['Copiar resultado', function (b) { copyTo(b, x.r); }],
-      ['Reabrir', function () { if (!CONV[x.c]) return; code = x.c; mode = x.m === 'dec' ? 'dec' : 'enc'; inp.value = x.t; ui(); }],
-      ['Apagar', function () { hisSet(hisGet().filter(function (y) { return !(y.d === x.d && y.t === x.t); })); hisDraw(); }]
-    ]));
-  });
-}
-
-/* ---- Detector ---- */
-var DN = {uni:'Unicode escapado', bin:'Binário', hex:'Hexadecimal', mor:'Código Morse', b64:'Base64', rot:'ROT13', txt:'Texto comum'};
-var DTRY = ['b64', 'hex', 'bin', 'mor', 'rot', 'uni'];
-var WORDS = {};
-'de que o a e um uma para com eu em os as se na no do da por mais mas como te amo oi voce nao sim ola tudo bem muito vou meu sua seu foi tem sei quando'.split(' ').forEach(function (w) { WORDS[w] = 1; });
-function score(s) {
-  var w = s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').match(/[a-z]+/g) || [], n = 0;
-  w.forEach(function (x) { if (WORDS[x]) n++; });
-  return n;
-}
-function plausible(s) { return !!s && s.indexOf('\uFFFD') < 0 && (s.match(/[\p{L}\p{N}\p{P}\p{Z}\p{S}\s]/gu) || []).length / s.length >= 0.95; }
-function dec(id, t) {
-  if (id === 'uni') return { r: t.replace(/\\u([0-9a-fA-F]{4})/g, function (m, h) { return String.fromCharCode(parseInt(h, 16)); }), e: '' };
-  return conv(id, t, 'dec');
-}
-function detect(t) {
-  var s = t.trim(), out = [];
-  if (!s) return out;
-  var tk = s.split(/\s+/), flat = s.replace(/\s/g, '');
-  function add(id, conf) { var d = dec(id, s); if (!d.e && plausible(d.r)) out.push({ id: id, conf: conf, r: d.r }); }
-  var esc = s.match(/\\u[0-9a-fA-F]{4}/g);
-  if (esc) add('uni', esc.join('').length >= flat.length ? 'alta' : 'média');
-  var isBin = tk.every(function (x) { return /^[01]{8}$/.test(x); });
+/* ============ Detector automático ============ */
+const plausible = s => !!s && !s.includes('\uFFFD') && (s.match(/[\p{L}\p{N}\p{P}\p{Z}\p{S}\s]/gu) || []).length / [...s].length >= 0.95;
+function detect(text) {
+  const s = text.trim(), tk = s.split(/\s+/), flat = s.replace(/\s/g, ''), out = [];
+  const add = (id, conf) => { try { const r = C[id].dec(s, {}); if (plausible(r)) out.push({ id, conf, name: C[id].name, preview: r }); } catch {} };
+  const isBin = tk.every(x => /^[01]{8}$/.test(x));
   if (isBin) add('bin', 'alta');
-  var h = s.replace(/0x|[\s,]/gi, '');
-  if (!isBin && /^[0-9a-f]+$/i.test(h) && h.length % 2 === 0) add('hex', tk.length > 1 && tk.every(function (x) { return /^(0x)?[0-9a-f]{2},?$/i.test(x); }) ? 'média' : 'baixa');
-  if (/^[.\-\/\s]+$/.test(s) && /[.\-]/.test(s) && tk.every(function (x) { return x === '/' || RMORSE[x]; })) add('mor', 'alta');
-  if (!isBin && flat.length >= 8 && /^[A-Za-z0-9+\/_-]+={0,2}$/.test(flat)) add('b64', /=$/.test(flat) ? 'média' : 'baixa');
-  var r = sh(s, 13), g = score(r) - score(s);
-  if (g > 0) out.push({ id: 'rot', conf: g >= 2 ? 'média' : 'baixa', r: r });
-  if (score(s) > 0) out.push({ id: 'txt', conf: score(s) > 1 ? 'média' : 'baixa', r: s });
+  if (/%[0-9a-f]{2}/i.test(s)) add('url', 'alta');
+  if (/^[.\-/\s]+$/.test(s) && /[.-]/.test(s) && tk.every(x => x === '/' || RM[x])) add('morse', 'alta');
+  const h = s.replace(/0x|[\s,]/gi, '');
+  if (!isBin && /^[0-9a-f]+$/i.test(h) && h.length % 2 === 0) add('hex', tk.length > 1 && tk.every(x => /^(0x)?[0-9a-f]{2},?$/i.test(x)) ? 'média' : 'baixa');
+  if (!isBin && flat.length >= 8 && /^[A-Za-z0-9+/_-]+={0,2}$/.test(flat)) add('b64', /=$/.test(flat) ? 'média' : 'baixa');
   return out;
 }
-function detCard(id, r, e, t, sub) {
-  var btns = [];
-  if (!e && r) btns.push(['Copiar prévia', function (b) { copyTo(b, r); }]);
-  if (CONV[id] && !e) btns.push(['Abrir no conversor', function () { code = id; mode = 'dec'; inp.value = t; ui(); }]);
-  return mkCard(DN[id], sub, e || r || '(vazio)', btns);
-}
-function detDraw(forced) {
-  var t = $('detIn').value.trim(), box = $('detOut');
-  box.innerHTML = '';
-  if (!t) return;
-  if (forced) { var d = dec(forced, t); box.appendChild(detCard(forced, d.r, d.e, t, 'tentativa manual')); }
-  var L = detect(t);
-  if (!L.length) box.appendChild(mkCard('Nada reconhecido', '', 'Não reconheci um formato. Pode ser texto comum (em outro idioma) ou um código que eu não conheço.', []));
-  L.forEach(function (x) { box.appendChild(detCard(x.id, x.r, '', t, 'confiança ' + x.conf + ' · hipótese')); });
-  if (L.length > 1) box.appendChild(el('p', 'hint', 'Mais de um formato é compatível. Trate como hipótese e confira a prévia.'));
-}
 
-/* ---- Laboratório ---- */
-var LABT = ['tec', 'ces', 'vig', 'rot', 'atb', 'mor', 'bin', 'b64', 'hex'], labOn = {};
-LABT.forEach(function (c) { labOn[c] = true; });
-function labDraw() {
-  var t = $('labIn').value, box = $('labOut'), tg = $('labTog'), ex = { n: $('labShift').value, k: $('labKey').value };
-  tg.innerHTML = ''; box.innerHTML = '';
-  LABT.forEach(function (c) {
-    var b = el('button', '', NM[c]); b.setAttribute('aria-pressed', labOn[c]);
-    b.onclick = function () { labOn[c] = !labOn[c]; labDraw(); };
-    tg.appendChild(b);
-  });
-  if (!t.trim()) { box.appendChild(el('p', 'hint', 'Digite uma mensagem para ver os resultados.')); return; }
-  LABT.forEach(function (c) {
-    if (!labOn[c]) return;
-    var d = conv(c, t, 'enc', ex);
-    var sub = c === 'ces' ? 'deslocamento ' + (parseInt(ex.n, 10) || 0) : c === 'vig' ? 'chave ' + (vkey(ex.k) || '—') : '';
-    box.appendChild(mkCard(NM[c], sub, d.e || d.r || '(vazio)', (d.e || !d.r) ? [] : [['Copiar', function (b) { copyTo(b, d.r); }]]));
-  });
-}
-
-/* ---- QR Code ---- */
-function qrDraw() {
-  var v = $('qrIn').value, cv = $('qrCv'), w = $('qrW');
-  cv.hidden = true;
-  if (!v.trim()) { w.textContent = 'Digite um texto ou link para gerar o QR Code.'; return; }
-  if (typeof qrcode === 'undefined') { w.textContent = 'A biblioteca de QR Code não carregou (sem internet?).'; return; }
-  try {
-    if (qrcode.stringToBytesFuncs && qrcode.stringToBytesFuncs['UTF-8']) qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
-    var q = qrcode(0, 'M'); q.addData(v, 'Byte'); q.make();
-    var n = q.getModuleCount(), k = Math.max(4, Math.floor(320 / (n + 8))), px = (n + 8) * k, x, r, c;
-    cv.width = px; cv.height = px; x = cv.getContext('2d');
-    x.fillStyle = '#fff'; x.fillRect(0, 0, px, px); x.fillStyle = '#000';
-    for (r = 0; r < n; r++) for (c = 0; c < n; c++) if (q.isDark(r, c)) x.fillRect((c + 4) * k, (r + 4) * k, k, k);
-    cv.hidden = false; w.textContent = '';
-  } catch (e) { w.textContent = 'Texto longo demais para caber em um QR Code.'; }
-}
-
-function ui() {
-  var enc = mode === 'enc';
-  $('tEnc').setAttribute('aria-pressed', enc);
-  $('tDec').setAttribute('aria-pressed', !enc);
-  nav();
-  $('pTec').hidden = code !== 'tec'; $('mapa').hidden = code !== 'tec'; $('pCes').hidden = code !== 'ces'; $('pVig').hidden = code !== 'vig';
-  $('refOther').hidden = code === 'tec' || !CONV[code]; drawRef();
-  ['vConv', 'vDet', 'vLab', 'vQr', 'vHis'].forEach(function (v) { $(v).hidden = v !== (VIEW[code] || 'vConv'); });
-  $('lblIn').textContent = enc ? 'Texto normal' : 'Texto codificado';
-  $('lblOut').textContent = enc ? 'Texto codificado' : 'Texto decodificado';
-  var ph = { tec: ['Escreva aqui: eu não sei', 'Cole aqui: <!ã{ ...'], ces: ['Escreva aqui', 'Cole o texto cifrado'], vig: ['Escreva aqui', 'Cole o texto cifrado'], mor: ['Escreva aqui', '.... --- .-.. .- / ...'], bin: ['Escreva aqui', '01001111 01101001'], rot: ['Escreva aqui', 'Cole o texto cifrado'], atb: ['Escreva aqui', 'Cole o texto cifrado'], b64: ['Escreva aqui', 'SGVsbG8='], hex: ['Escreva aqui', '4F 69'] };
-  if (ph[code]) inp.placeholder = ph[code][enc ? 0 : 1];
-  if (CONV[code]) run(); else if (code === 'det') detDraw(); else if (code === 'lab') labDraw(); else if (code === 'qr') qrDraw(); else hisDraw();
-}
-
-$('codes').addEventListener('click', function (e) { var c = e.target.getAttribute && e.target.getAttribute('data-c'); if (c) { code = c; ui(); } });
-$('tEnc').onclick = function () { mode = 'enc'; ui(); };
-$('tDec').onclick = function () { mode = 'dec'; ui(); };
-['esc', 'caps', 'shift', 'vkey'].forEach(function (id) { $(id).addEventListener('input', run); });
-$('shift').addEventListener('input', drawRef);
-$('vkey').addEventListener('input', drawRef);
-inp.addEventListener('input', run);
-$('clear').onclick = function () { inp.value = ''; run(); inp.focus(); };
-$('swap').onclick = function () { var v = outp.value; mode = mode === 'enc' ? 'dec' : 'enc'; inp.value = v; ui(); };
-
-$('paste').onclick = function () {
-  var fail = function () { warn.textContent = 'Não consegui acessar a área de transferência. Segure no campo e toque em Colar.'; };
-  if (navigator.clipboard && navigator.clipboard.readText) {
-    navigator.clipboard.readText().then(function (t) { inp.value = t; run(); }, fail);
-  } else fail();
+/* ============ Histórico ============ */
+const hist = {
+  K: 'decoduncod:v2:history',
+  all() { const a = LS.get(this.K, []); return Array.isArray(a) ? a.filter(x => x && C[x.m] && typeof x.i === 'string' && typeof x.o === 'string') : []; },
+  save(a) { LS.set(this.K, a.slice(0, 100)); },
+  add(m, d, i, o, p) {
+    const a = this.all().filter(x => !(x.m === m && x.d === d && x.i === i));
+    a.unshift({ m, d, i: i.slice(0, 5000), o: o.slice(0, 10000), p, t: Date.now() }); this.save(a);
+  },
+  del(t) { this.save(this.all().filter(x => x.t !== t)); },
+  clear() { this.save([]); }
 };
+const app = {};
 
-$('copy').onclick = function () {
-  var b = $('copy'), v = outp.value;
-  function ok() { b.textContent = 'Copiado!'; setTimeout(function () { b.textContent = 'Copiar'; }, 1400); }
-  function fb() { outp.select(); try { document.execCommand('copy'); ok(); } catch (e) {} }
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(ok, fb); else fb();
-};
+/* ============ Conversor (Decodificador e Teclado secreto) — em tempo real ============ */
+const TPL = `<div class="tool">
+<div class="pick"><div class="cats"></div><div class="meths"></div></div>
+<select class="m" hidden aria-hidden="true"></select>
+<div class="opts"><label class="o-shift" hidden>desloc. <input type="number" min="1" max="25" value="3" aria-label="Deslocamento"></label><label class="o-key" hidden>chave <input type="text" value="LEMON" autocomplete="off" aria-label="Palavra-chave"></label></div>
+<div class="lb"><span>&gt; entrada</span><span class="ci"></span></div><textarea class="i" spellcheck="false" aria-label="Entrada"></textarea>
+<div class="btns"><div class="cats" role="group" aria-label="Direção"><button class="chip d" type="button" aria-pressed="true">Decodificar</button><button class="chip e" type="button" aria-pressed="false">Codificar</button></div><button class="btn pa" type="button">Colar</button><button class="btn s" type="button" title="Trocar entrada e resultado">Inverter</button><button class="btn c" type="button">Limpar</button></div>
+<div class="info"></div><div class="err" role="alert"></div>
+<div class="lb"><span>&lt; resultado</span><span class="co"></span></div><textarea class="o" readonly aria-label="Resultado"></textarea>
+<div class="btns"><button class="btn cp" type="button">Copiar</button><button class="btn sh" type="button">Compartilhar</button></div></div>`;
+const short = id => C[id].name.replace(/ \(.*/, '').replace('Cifra de ', '').replace('Código ', '').replace('Escapes ', '');
+const chip = (t, on, f) => { const b = el('button', 'chip', t); b.type = 'button'; b.setAttribute('aria-pressed', on); b.onclick = f; return b; };
+function converter(root, cfg) {
+  root.innerHTML = TPL;
+  const q = s => $(s, root), sel = q('.m'), i = q('.i'), o = q('.o'), err = q('.err'), info = q('.info');
+  let dir = cfg.dir || 'dec', lt;
+  if (cfg.auto) sel.append(new Option('Automático (detectar formato)', 'auto'));
+  cfg.ids.forEach(id => sel.append(new Option(C[id].name, id)));
+  if (cfg.ids.length < 2) q('.pick').hidden = true;
+  if (!cfg.ids.includes('cesar')) q('.opts').remove();
+  const opts = () => ({ shift: q('.o-shift input')?.value, key: q('.o-key input')?.value });
+  const cnt = () => { q('.ci').textContent = [...i.value].length + ' car.'; q('.co').textContent = [...o.value].length + ' car.'; };
+  const reset = () => { err.textContent = ''; info.replaceChildren(); };
+  const bad = m => { err.textContent = m; };
+  const setDir = d => { dir = d; q('.d').setAttribute('aria-pressed', d === 'dec'); q('.e').setAttribute('aria-pressed', d === 'enc'); };
+  function drawPick() {
+    const cur = sel.value, g = cur === 'auto' ? 'auto' : C[cur].g, cb = q('.pick .cats'), mb = q('.meths');
+    cb.replaceChildren(); mb.replaceChildren();
+    (cfg.auto ? ['auto'] : []).concat([...new Set(cfg.ids.map(id => C[id].g))]).forEach(k => cb.append(chip(k === 'auto' ? 'Auto' : k, k === g, () => {
+      if (k === 'auto') sel.value = 'auto'; else if (g !== k) sel.value = cfg.ids.find(id => C[id].g === k);
+      sync(); run();
+    })));
+    if (g === 'auto') mb.append(el('span', 'dim', '// o detector escolhe o formato'));
+    else cfg.ids.filter(id => C[id].g === g).forEach(id => mb.append(chip(short(id), id === cur, () => { sel.value = id; sync(); run(); })));
+  }
+  function sync() { const s = q('.o-shift'), k = q('.o-key'); if (s) { s.hidden = sel.value !== 'cesar'; k.hidden = sel.value !== 'vig'; } drawPick(); }
+  function load(m, t, p = {}, out = '', d) {
+    if ([...sel.options].some(x => x.value === m)) sel.value = m;
+    const s = q('.o-shift input'), k = q('.o-key input');
+    if (s && p.shift != null) s.value = p.shift; if (k && p.key != null) k.value = p.key;
+    if (d) setDir(d); sync(); reset(); i.value = t; o.value = out; cnt();
+  }
+  function go() {
+    const text = i.value; let id = sel.value;
+    if (!text.trim()) return;
+    if (id === 'auto') {
+      if (dir === 'enc') return bad('Escolha um método específico para codificar.');
+      const c = detect(text);
+      if (!c.length) { info.textContent = 'Não consegui identificar o formato. Escolha o método manualmente.'; return; }
+      if (c.length > 1 || c[0].conf === 'baixa') {
+        info.append('Formato ambíguo (hipóteses, sem certeza). Escolha uma: ');
+        c.forEach(x => info.append(chip(x.name + ' · ' + x.conf, false, () => { sel.value = x.id; sync(); run(); }), ' '));
+        return;
+      }
+      id = c[0].id; info.textContent = 'Detectado: ' + C[id].name + ' (confiança ' + c[0].conf + ').';
+    }
+    try {
+      const p = id === 'cesar' || id === 'vig' ? opts() : undefined, d = dir, out = C[id][d](text, opts());
+      o.value = out; lt = setTimeout(() => hist.add(id, d, text, out, p), 1200);
+    } catch (e) { bad(e.message || 'Entrada inválida.'); }
+  }
+  function run() { clearTimeout(lt); reset(); o.value = ''; go(); cnt(); }
+  sel.onchange = () => { sync(); run(); };
+  i.oninput = run;
+  q('.opts')?.addEventListener('input', run);
+  q('.d').onclick = () => { setDir('dec'); run(); };
+  q('.e').onclick = () => { setDir('enc'); run(); };
+  q('.pa').onclick = () => paste(t => { i.value = t; run(); });
+  q('.s').onclick = () => { [i.value, o.value] = [o.value, i.value]; setDir(dir === 'dec' ? 'enc' : 'dec'); run(); toast('Entrada e resultado invertidos.'); };
+  q('.c').onclick = () => { i.value = ''; run(); i.focus(); };
+  q('.cp').onclick = () => o.value ? copy(o.value) : toast('Nada para copiar.', 'err');
+  q('.sh').onclick = () => share(o.value);
+  setDir(dir); sync(); cnt();
+  return { load };
+}
 
-$('share').onclick = function () {
-  var v = outp.value; if (!v) return;
-  if (navigator.share) navigator.share({ text: v }).catch(function () {});
-  else window.open('https://wa.me/?text=' + encodeURIComponent(v), '_blank', 'noopener');
-};
+/* ============ Laboratório ============ */
+function lab(root) {
+  root.innerHTML = `<div class="tool"><div class="lb"><span>$ conversor</span></div><div class="chips"></div>
+<div class="lb"><span>&gt; texto</span></div><textarea class="a" spellcheck="false" aria-label="Texto"></textarea>
+<div class="lb"><span>&lt; convertido</span></div><textarea class="b" spellcheck="false" aria-label="Convertido"></textarea>
+<div class="err" role="alert"></div>
+<div class="btns"><button class="btn pa" type="button">Colar</button><button class="btn ca" type="button">Copiar texto</button><button class="btn cb" type="button">Copiar convertido</button><button class="btn cl" type="button">Limpar</button></div></div>`;
+  const q = s => $(s, root), a = q('.a'), b = q('.b'), err = q('.err'); let cur = LAB[0], lt;
+  const chips = LAB.map(id => { const c = el('button', 'chip', C[id].name.replace(/ \(.*/, '')); c.type = 'button'; c.onclick = () => { cur = id; mark(); conv(a, b, 'enc'); }; q('.chips').append(c); return c; });
+  const mark = () => chips.forEach((c, k) => c.setAttribute('aria-pressed', LAB[k] === cur));
+  function conv(src, dst, dir) {
+    err.textContent = '';
+    if (!src.value.trim()) { dst.value = ''; return; }
+    try { dst.value = C[cur][dir](src.value, {}); clearTimeout(lt); const i = src.value, o = dst.value; lt = setTimeout(() => hist.add(cur, dir, i, o), 1200); }
+    catch (e) { dst.value = ''; err.textContent = e.message; }
+  }
+  a.oninput = () => conv(a, b, 'enc'); b.oninput = () => conv(b, a, 'dec');
+  q('.pa').onclick = () => paste(t => { a.value = t; conv(a, b, 'enc'); });
+  q('.ca').onclick = () => a.value ? copy(a.value) : toast('Nada para copiar.', 'err');
+  q('.cb').onclick = () => b.value ? copy(b.value) : toast('Nada para copiar.', 'err');
+  q('.cl').onclick = () => { a.value = b.value = ''; err.textContent = ''; a.focus(); };
+  mark();
+}
 
-(function () {
-  var kb = $('kb');
-  ROWS.forEach(function (row) {
-    var d = document.createElement('div'); d.className = 'kr';
-    row.split('').forEach(function (l) {
-      var k = document.createElement('div'); k.className = 'k';
-      var b = document.createElement('b'); b.textContent = l.toUpperCase();
-      var i = document.createElement('i'); i.textContent = map[l];
-      k.appendChild(b); k.appendChild(i); d.appendChild(k);
-    });
-    kb.appendChild(d);
-  });
-})();
-$('cats').addEventListener('click', function (e) { var g = e.target.getAttribute && e.target.getAttribute('data-g'); if (g && TOOLS[g]) { code = TOOLS[g][0]; ui(); } });
-$('detIn').addEventListener('input', function () { detDraw(); });
-$('detClear').onclick = function () { $('detIn').value = ''; detDraw(); };
-$('detPaste').onclick = function () {
-  if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(function (t) { $('detIn').value = t; detDraw(); }, function () {});
-};
-DTRY.forEach(function (id) { var b = el('button', '', DN[id]); b.onclick = function () { detDraw(id); }; $('detTry').appendChild(b); });
-['labIn', 'labShift', 'labKey'].forEach(function (id) { $(id).addEventListener('input', labDraw); });
-$('qrIn').addEventListener('input', qrDraw);
-$('qrDl').onclick = function () {
-  var cv = $('qrCv');
-  if (cv.hidden) { $('qrW').textContent = 'Gere um QR Code antes de baixar.'; return; }
-  cv.toBlob(function (b) {
-    var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'qrcode.png';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+/* ============ QR Code ============ */
+let qrLib;
+const loadQR = () => window.qrcode ? Promise.resolve() : qrLib || (qrLib = new Promise((ok, no) => {
+  const s = el('script'); s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+  s.onload = ok; s.onerror = () => { qrLib = null; no(new Error('Não foi possível carregar a biblioteca de QR Code. Verifique a conexão.')); };
+  document.head.append(s);
+}));
+function qr(root) {
+  root.innerHTML = `<div class="tool"><div class="lb"><span>&gt; texto ou url</span></div><textarea class="t" placeholder="https://exemplo.com" spellcheck="false" aria-label="Texto ou URL"></textarea>
+<div class="err" role="alert"></div><div class="btns"><button class="btn pri g" type="button">Gerar QR Code</button><button class="btn dl" type="button" hidden>Baixar PNG</button></div><canvas class="qrc" hidden></canvas></div>`;
+  const q = s => $(s, root), t = q('.t'), err = q('.err'), g = q('.g'), dl = q('.dl'), cv = q('.qrc');
+  g.onclick = async () => {
+    err.textContent = ''; cv.hidden = dl.hidden = true;
+    const v = t.value.trim();
+    if (!v) { err.textContent = 'Digite um texto ou URL para gerar o QR Code.'; return toast(err.textContent, 'err'); }
+    g.disabled = true; g.textContent = 'Gerando…';
+    try {
+      await loadQR();
+      qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
+      const m = qrcode(0, 'M'); m.addData(v, 'Byte'); m.make();
+      const n = m.getModuleCount(), k = Math.max(4, Math.floor(320 / (n + 8))), px = (n + 8) * k, x = cv.getContext('2d');
+      cv.width = cv.height = px; x.fillStyle = '#fff'; x.fillRect(0, 0, px, px); x.fillStyle = '#000';
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (m.isDark(r, c)) x.fillRect((c + 4) * k, (r + 4) * k, k, k);
+      cv.hidden = dl.hidden = false; toast('QR Code gerado.', 'ok');
+    } catch (e) {
+      err.textContent = e instanceof Error ? e.message : 'Conteúdo longo demais para caber em um QR Code.'; toast(err.textContent, 'err');
+    } finally { g.disabled = false; g.textContent = 'Gerar QR Code'; }
+  };
+  dl.onclick = () => cv.toBlob(b => {
+    const a = el('a'); a.href = URL.createObjectURL(b); a.download = 'qrcode.png'; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }, 'image/png');
-};
-$('qrCp').onclick = function () { var v = $('qrIn').value; if (!v.trim()) { $('qrW').textContent = 'Nada para copiar.'; return; } copyTo(this, v); };
-$('hisClr').onclick = function () { if (confirm('Apagar todo o histórico?')) { hisSet([]); hisDraw(); } };
-try { $('hisOn').checked = localStorage.getItem('decod-hist-off') !== '1'; } catch (e) {}
-$('hisOn').addEventListener('change', function () { try { localStorage.setItem('decod-hist-off', this.checked ? '0' : '1'); } catch (e) {} });
+}
 
-ui();
+/* ============ Tela de histórico ============ */
+function renderHist() {
+  const box = $('#his'), a = hist.all(); box.replaceChildren();
+  const bar = el('div', 'btns'), clr = el('button', 'btn', 'Limpar tudo'); clr.type = 'button'; clr.disabled = !a.length;
+  clr.onclick = () => { if (confirm('Apagar todo o histórico?')) { hist.clear(); renderHist(); toast('Histórico apagado.'); } };
+  bar.append(clr); box.append(bar);
+  if (!a.length) { box.append(el('p', 'lead', 'Nenhuma conversão salva ainda.')); return; }
+  a.forEach(r => {
+    const c = el('div', 'card h'), meta = el('div', 'meta'), b = el('b', '', C[r.m].name + ' · ' + (r.d === 'dec' ? 'decodificar' : 'codificar'));
+    meta.append(b, el('span', '', new Date(r.t).toLocaleString('pt-BR')));
+    const btns = el('div', 'btns');
+    [['Recuperar', () => { const k = r.m === 'kb' ? 'kb' : 'dec'; app[k].load(r.m, r.i, r.p, r.o, r.d); show(k); toast('Conversão recuperada.', 'ok'); }],
+     ['Copiar resultado', () => copy(r.o)],
+     ['Apagar', () => { hist.del(r.t); renderHist(); }]].forEach(([l, f]) => { const x = el('button', 'btn', l); x.type = 'button'; x.onclick = f; btns.append(x); });
+    c.append(meta, el('pre', '', r.i), el('pre', '', '→ ' + r.o), btns); box.append(c);
+  });
+}
+
+/* ============ Navegação, temas e inicialização ============ */
+const VIEWS = [
+  ['dec', 'Decodificador', 'Decod.', '<path d="M4 17l6-6-6-6M12 19h8"/>'],
+  ['lab', 'Laboratório', 'Lab', '<path d="M9 3h6M10 3v6L5 19a1 1 0 001 1h12a1 1 0 001-1L14 9V3"/>'],
+  ['kb', 'Teclado secreto', 'Teclado', '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'],
+  ['qr', 'Gerador de QR Code', 'QR', '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M20 20v.01M17 20h.01"/>'],
+  ['his', 'Histórico', 'Hist.', '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>']
+];
+function show(v) {
+  document.querySelectorAll('.view').forEach(s => { s.hidden = s.dataset.v !== v; });
+  document.querySelectorAll('#nav button').forEach(b => { if (b.dataset.v === v) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  if (v === 'his') renderHist();
+  window.scrollTo(0, 0);
+}
+VIEWS.forEach(([v, f, s, ic]) => {
+  const b = el('button'); b.type = 'button'; b.dataset.v = v;
+  b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ic}</svg><span class="f">${f}</span><span class="s">${s}</span>`;
+  b.onclick = () => show(v); $('#nav').append(b);
+});
+const setTheme = t => {
+  document.documentElement.dataset.theme = t; LS.set('decoduncod:v2:theme', t);
+  const b = $('#theme'); b.textContent = t === 'dark' ? '☀' : '☾'; b.setAttribute('aria-label', t === 'dark' ? 'Usar tema claro' : 'Usar tema escuro');
+};
+$('#theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+setTheme(LS.get('decoduncod:v2:theme', 'dark') === 'light' ? 'light' : 'dark');
+
+app.dec = converter($('#dec'), { ids: DEC, auto: true });
+lab($('#lab'));
+app.kb = converter($('#kb'), { ids: ['kb'], dir: 'enc' });
+const ref = el('div', 'tool');
+ref.innerHTML = '<div class="lb"><span>$ mapa fixo das teclas</span></div><div class="kb"></div><p class="dim" style="margin:8px 0 0">Acentos e números ficam iguais. Maiúscula ganha ^; ? ! " ( ) de verdade ganham ~ na frente, para o texto voltar exato.</p>';
+['qwertyuiop', 'asdfghjkl', 'zxcvbnm'].forEach(row => {
+  const r = el('div', 'kr');
+  [...row].forEach(l => { const k = el('div', 'k'); k.append(el('b', '', l.toUpperCase()), el('i', '', KEYS[l])); r.append(k); });
+  $('.kb', ref).append(r);
+});
+$('#kbmap').append(ref);
+qr($('#qr'));
+show('dec');
+})();
 </script>
 </body>
 </html>
